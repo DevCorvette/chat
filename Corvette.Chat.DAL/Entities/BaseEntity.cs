@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Corvette.Chat.DAL.Entities
 {
@@ -16,7 +17,9 @@ namespace Corvette.Chat.DAL.Entities
         
         /// <summary>
         /// Date when entity was created.
+        /// It's auto-generated in the database when an entity is inserted.
         /// </summary>
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime Created { get; set; }
     }
 }
