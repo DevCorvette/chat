@@ -5,6 +5,23 @@ namespace Corvette.Chat.DAL
 {
     public class ChatDataContext : DbContext
     {
+        private readonly string? _connectionString;
+
+        public ChatDataContext()
+        {
+        }
+
+        public ChatDataContext(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+        
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseNpgsql(_connectionString ?? "Connection string is null"); // I use default string for EF migration
+        }
+
+
         public virtual DbSet<UserEntity> Users { get; set; } = null!;
         
         public virtual DbSet<ChatEntity> Chats { get; set; } = null!;
