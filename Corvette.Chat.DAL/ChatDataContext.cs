@@ -5,13 +5,13 @@ namespace Corvette.Chat.DAL
 {
     public class ChatDataContext : DbContext
     {
-        public virtual DbSet<UserEntity> Users { get; set; }
+        public virtual DbSet<UserEntity> Users { get; set; } = null!;
         
-        public virtual DbSet<ChatEntity> Chats { get; set; }
+        public virtual DbSet<ChatEntity> Chats { get; set; } = null!;
         
-        public virtual DbSet<MessageEntity> Messages { get; set; }
+        public virtual DbSet<MessageEntity> Messages { get; set; } = null!;
         
-        public virtual DbSet<ChatUserEntity> ChatUsers { get; set; }
+        public virtual DbSet<ChatUserEntity> ChatUsers { get; set; } = null!;
 
         
         protected override void OnModelCreating(ModelBuilder builder)
@@ -25,12 +25,12 @@ namespace Corvette.Chat.DAL
             builder.Entity<MessageEntity>(entity =>
             {
                 entity.HasOne(x => x.Author)
-                    .WithMany(x => x.Messages)
+                    .WithMany(x => x!.Messages)
                     .HasForeignKey(x => x.AuthorId)
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(x => x.Chat)
-                    .WithMany(x => x.Messages)
+                    .WithMany(x => x!.Messages)
                     .HasForeignKey(x => x.ChatId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
@@ -38,12 +38,12 @@ namespace Corvette.Chat.DAL
             builder.Entity<ChatUserEntity>(entity =>
             {
                 entity.HasOne(x => x.User)
-                    .WithMany(x => x.ChatUsers)
+                    .WithMany(x => x!.ChatUsers)
                     .HasForeignKey(x => x.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(x => x.Chat)
-                    .WithMany(x => x.ChatUsers)
+                    .WithMany(x => x!.ChatUsers)
                     .HasForeignKey(x => x.ChatId)
                     .OnDelete(DeleteBehavior.Cascade);
             });

@@ -16,7 +16,7 @@ namespace Corvette.Chat.DAL.Entities
         /// </summary>
         [Required]
         [StringLength(3000)]
-        public string Text { get; set; }
+        public string Text { get; set; } = null!;
         
         /// <summary>
         /// Id of a user who write the message.

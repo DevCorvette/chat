@@ -17,7 +17,7 @@ namespace Corvette.Chat.DAL.Entities
         /// </summary>
         [Required]
         [StringLength(200)]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         
         /// <summary>
         /// Messages which the user sent to chats.
@@ -27,6 +27,7 @@ namespace Corvette.Chat.DAL.Entities
         /// <summary>
         /// Collection from which we can get user chats.
         /// </summary>
-        public ICollection<ChatUserEntity> ChatUsers { get; set; }
+        public ICollection<ChatUserEntity>? ChatUsers { get; set; }
+        
     }
 }  

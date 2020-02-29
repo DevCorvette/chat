@@ -32,6 +32,6 @@ namespace Corvette.Chat.DAL.Entities
         /// <summary>
         /// Collection from which we can get chat users.
         /// </summary>
-        public ICollection<ChatUserEntity> ChatUsers { get; set; }
+        public ICollection<ChatUserEntity>? ChatUsers { get; set; }
     }
 }
