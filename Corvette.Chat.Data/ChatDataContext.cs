@@ -1,7 +1,7 @@
-﻿using Corvette.Chat.DAL.Entities;
+﻿using Corvette.Chat.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Corvette.Chat.DAL
+namespace Corvette.Chat.Data
 {
     public class ChatDataContext : DbContext
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Corvette.Chat.DAL.Migrations
+namespace Corvette.Chat.Data.Migrations
 {
     public partial class InitialMigration : Migration
     {

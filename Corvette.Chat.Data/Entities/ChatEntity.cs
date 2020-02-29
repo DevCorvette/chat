@@ -2,13 +2,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Corvette.Chat.DAL.Entities
+namespace Corvette.Chat.Data.Entities
 {
     /// <summary>
     /// A place for users conversation.
     /// </summary>
     [Table("Chats")]
-    public class ChatEntity : BaseEntity
+    public sealed class ChatEntity : BaseEntity
     {
         /// <summary>
         /// When it's true then the chat can contain only two users.

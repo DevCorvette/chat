@@ -2,13 +2,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Corvette.Chat.DAL.Entities
+namespace Corvette.Chat.Data.Entities
 {
     /// <summary>
     /// A message which a user adds to a chat.
     /// </summary>
     [Table("Messages")]
-    public class MessageEntity : BaseEntity
+    public sealed class MessageEntity : BaseEntity
     {
         /// <summary>
         /// Message text.

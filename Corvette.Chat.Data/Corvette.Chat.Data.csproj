@@ -4,6 +4,7 @@
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <Nullable>enable</Nullable>
         <LangVersion>8</LangVersion>
+        <RootNamespace>Corvette.Chat.Data</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

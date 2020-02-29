@@ -1,13 +1,13 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Corvette.Chat.DAL.Entities
+namespace Corvette.Chat.Data.Entities
 {
     /// <summary>
     /// Relation between chat and user.
     /// </summary>
     [Table("ChatUsers")]
-    public class ChatUserEntity : BaseEntity
+    public sealed class ChatUserEntity : BaseEntity
     {
         /// <summary>
         /// User id.

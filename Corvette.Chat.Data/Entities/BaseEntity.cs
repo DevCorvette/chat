@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Corvette.Chat.DAL.Entities
+namespace Corvette.Chat.Data.Entities
 {
     /// <summary>
     /// Base class for all entities.
