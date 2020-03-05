@@ -3,7 +3,16 @@
     /// <summary>
     /// Factory which creates <see cref="ChatDataContext"/>.
     /// </summary>
-    public sealed class ChatDataContextFactory
+    public interface IChatDataContextFactory
+    {
+        /// <summary>
+        /// Returns a new <see cref="ChatDataContext"/>.
+        /// </summary>
+        ChatDataContext CreateContext();
+    }
+    
+    /// <inheritdoc/>
+    public sealed class ChatDataContextFactory : IChatDataContextFactory
     {
         private readonly string _connectionString;
         
@@ -12,9 +21,7 @@
             _connectionString = connectionString;
         }
         
-        /// <summary>
-        /// Returns a new <see cref="ChatDataContext"/>.
-        /// </summary>
+        /// <inheritdoc/>
         public ChatDataContext CreateContext()
         {
             return new ChatDataContext(_connectionString);

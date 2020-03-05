@@ -17,11 +17,11 @@ namespace Corvette.Chat.Services.Impl
     {
         private readonly ILogger<UserService> _logger;
 
-        private readonly ChatDataContextFactory _contextFactory;
+        private readonly IChatDataContextFactory _contextFactory;
 
         public UserService(
             ILogger<UserService> logger, 
-            ChatDataContextFactory contextFactory)
+            IChatDataContextFactory contextFactory)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));

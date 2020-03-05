@@ -18,7 +18,7 @@ namespace Corvette.Chat.Services.IoC
             if (string.IsNullOrWhiteSpace(connectionString)) 
                 throw new ArgumentOutOfRangeException(nameof(connectionString));
             
-            services.AddSingleton(new ChatDataContextFactory(connectionString));
+            services.AddSingleton<IChatDataContextFactory>(new ChatDataContextFactory(connectionString));
             
             services.AddSingleton<IUserService, UserService>();
 

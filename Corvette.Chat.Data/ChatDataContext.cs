@@ -7,6 +7,8 @@ namespace Corvette.Chat.Data
     {
         private readonly string? _connectionString;
 
+        private readonly bool _isTest;
+
         public ChatDataContext()
         {
         }
@@ -16,9 +18,18 @@ namespace Corvette.Chat.Data
             _connectionString = connectionString;
         }
         
+        public ChatDataContext(DbContextOptions<ChatDataContext> options, bool isTest)
+            : base(options)
+        {
+            _isTest = isTest;
+        }
+        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(_connectionString ?? "Connection string is null"); // I use default string for EF migration
+            if (!_isTest)
+            {
+                optionsBuilder.UseNpgsql(_connectionString ?? "Connection string is null"); // I use default string for EF migration
+            }
         }
 
 
