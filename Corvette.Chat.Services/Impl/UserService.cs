@@ -96,7 +96,16 @@ namespace Corvette.Chat.Services.Impl
             await using var context = _contextFactory.CreateContext();
             foreach (var userId in userIds)
             {
-                var user = await context.Users.GetByIdAsync(userId);
+                var user = await context.Users
+                    .Include(x => x.OwnChats)
+                    .Where(x => x.Id == userId)
+                    .SingleOrDefaultAsync();
+                
+                if (user == null) 
+                    throw new EntityNotFoundException($"User by id: {userId} was not found.");
+                if (user.OwnChats?.Count != 0)
+                    throw new ChatServiceException($"Can't remove a user with id: {userId} because he owns some chats.");
+                
                 context.Users.Remove(user);
             }
 
