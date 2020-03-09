@@ -3,15 +3,17 @@ using System;
 using Corvette.Chat.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Corvette.Chat.Data.Migrations
 {
     [DbContext(typeof(ChatDataContext))]
-    partial class ChatDataContextModelSnapshot : ModelSnapshot
+    [Migration("20200309194326_AddOwnerToChat")]
+    partial class AddOwnerToChat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

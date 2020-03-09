@@ -76,6 +76,14 @@ namespace Corvette.Chat.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
+            builder.Entity<ChatEntity>(entity =>
+            {
+                entity.HasOne(x => x.Owner)
+                    .WithMany(x => x!.OwnChats)
+                    .HasForeignKey(x => x.OwnerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
         }
     }
 }

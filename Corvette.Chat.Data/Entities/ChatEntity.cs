@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,6 +24,16 @@ namespace Corvette.Chat.Data.Entities
         /// </summary>
         [StringLength(200)]
         public string? Name { get; set; }
+        
+        /// <summary>
+        /// Id of a user who can edit the chat.
+        /// </summary>
+        public Guid OwnerId { get; set; }
+        
+        /// <summary>
+        /// A user who can edit the chat.
+        /// </summary>
+        public UserEntity? Owner { get; set; }
         
         /// <summary>
         /// Messages which users wrote into the chat.

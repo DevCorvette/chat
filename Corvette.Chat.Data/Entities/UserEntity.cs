@@ -29,5 +29,10 @@ namespace Corvette.Chat.Data.Entities
         /// </summary>
         public ICollection<ChatUserEntity>? ChatUsers { get; set; }
         
+        /// <summary>
+        /// User owned chats.
+        /// </summary>
+        public ICollection<ChatEntity>? OwnChats { get; set; }
+        
     }
 }  
