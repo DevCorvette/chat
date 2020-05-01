@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Corvette.Chat.Data;
-using Corvette.Chat.Services.DTO;
 using Corvette.Chat.Services.Exceptions;
+using Corvette.Chat.Services.Models;
 
 namespace Corvette.Chat.Services
 {
@@ -18,7 +17,7 @@ namespace Corvette.Chat.Services
         /// <param name="name">Unique user name</param>
         /// <exception cref="ArgumentOutOfRangeException">When the name is null or white space</exception>
         /// <exception cref="ChatServiceException">When a user with that name is already exist</exception>
-        Task<UserDto> CreateAsync(string name);
+        Task<UserModel> CreateUserAsync(string name);
 
         /// <summary>
         /// Updates the user's name.
@@ -28,7 +27,7 @@ namespace Corvette.Chat.Services
         /// <exception cref="ArgumentOutOfRangeException">When user id is default or user name is null or white space</exception>
         /// <exception cref="ChatServiceException">When a user with that name is already exist</exception>
         /// <exception cref="EntityNotFoundException">When a user was not found by id in the database</exception>
-        Task UpdateAsync(Guid userId, string name);
+        Task UpdateUserNameAsync(Guid userId, string name);
         
         /// <summary>
         /// Returns a user by id.
@@ -36,7 +35,7 @@ namespace Corvette.Chat.Services
         /// <param name="id">User id</param>
         /// <exception cref="EntityNotFoundException">When a user was not found by id in the database</exception>
         /// <exception cref="ArgumentOutOfRangeException">When user id is default</exception>
-        Task<UserDto> GetAsync(Guid id);
+        Task<UserModel> GetUserAsync(Guid id);
 
         /// <summary>
         /// Removes users from the database.
@@ -44,7 +43,7 @@ namespace Corvette.Chat.Services
         /// <param name="userIds">List of user ids which will remove</param>
         /// <exception cref="ArgumentOutOfRangeException">When a users id list is empty</exception>
         /// <exception cref="EntityNotFoundException">When a user was not found by id in the database</exception>
-        Task RemoveAsync(IReadOnlyList<Guid> userIds);
+        Task RemoveUsersAsync(IReadOnlyList<Guid> userIds);
 
         /// <summary>
         /// Returns true when a user with the current name is already exist in the database.

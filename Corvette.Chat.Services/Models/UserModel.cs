@@ -1,41 +1,35 @@
 ﻿using System;
 using Corvette.Chat.Data.Entities;
 
-namespace Corvette.Chat.Services.DTO
+namespace Corvette.Chat.Services.Models
 {
     /// <summary>
-    /// A place for users conversation.
+    /// Chat user DTO.
     /// </summary>
-    public sealed class ChatDto
+    public sealed class UserModel
     {
         /// <summary>
-        /// Chat id.
+        /// User id.
         /// </summary>
         public Guid Id { get; }
         
         /// <summary>
-        /// Date when chat was created.
+        /// Date when user was created.
         /// </summary>
         public DateTime Created { get; }
         
         /// <summary>
-        /// When it's true then the chat can contain only two users.
+        /// User name.
         /// </summary>
-        public bool IsPrivate { get; }
-        
-        /// <summary>
-        /// Chat name.
-        /// </summary>
-        public string? Name { get; }
+        public string Name { get; }
 
         /// <summary>
-        /// Create a new <see cref="ChatDto"/>
+        /// Create a new <see cref="UserModel"/>
         /// </summary>
-        public ChatDto(ChatEntity entity)
+        public UserModel(UserEntity entity)
         {
             Id = entity.Id;
             Created = entity.Created;
-            IsPrivate = entity.IsPrivate;
             Name = entity.Name;
         }
 
@@ -44,7 +38,6 @@ namespace Corvette.Chat.Services.DTO
         {
             return $"{nameof(Id)}: {Id}, " +
                    $"{nameof(Created)}: {Created}, " +
-                   $"{nameof(IsPrivate)}: {IsPrivate}, " +
                    $"{nameof(Name)}: {Name}";
         }
     }

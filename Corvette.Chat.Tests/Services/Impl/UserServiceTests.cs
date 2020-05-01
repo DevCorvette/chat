@@ -33,7 +33,7 @@ namespace Corvette.Chat.Tests.Services.Impl
             var userName = "Test User";
 
             // act
-            var user = await _service.CreateAsync(userName);
+            var user = await _service.CreateUserAsync(userName);
 
             // assert
             Check.That(user.Id).Not.Equals(default(Guid));
@@ -56,7 +56,7 @@ namespace Corvette.Chat.Tests.Services.Impl
 
             // act & assert
             Check
-                .ThatAsyncCode(async() => await _service.CreateAsync(" existed user "))
+                .ThatAsyncCode(async() => await _service.CreateUserAsync(" existed user "))
                 .Throws<ChatServiceException>();
         }
 
@@ -78,7 +78,7 @@ namespace Corvette.Chat.Tests.Services.Impl
             const string newName = "New Name";
             
             // act
-            await _service.UpdateAsync(user.Id, newName);
+            await _service.UpdateUserNameAsync(user.Id, newName);
 
             // assert
             var updatedUser = await CreateContext().Users
@@ -104,7 +104,7 @@ namespace Corvette.Chat.Tests.Services.Impl
             await context.SaveChangesAsync();
             
             // act
-            await _service.RemoveAsync(new[] {user.Id});
+            await _service.RemoveUsersAsync(new[] {user.Id});
 
             // assert
             var removedUser = await CreateContext().Users

@@ -1,12 +1,12 @@
 ﻿using System;
 using Corvette.Chat.Data.Entities;
 
-namespace Corvette.Chat.Services.DTO
+namespace Corvette.Chat.Services.Models
 {
     /// <summary>
     /// A message which a user adds to a chat.
     /// </summary>
-    public sealed class MessageDto
+    public sealed class MessageModel
     {
         /// <summary>
         /// Message id.
@@ -37,24 +37,20 @@ namespace Corvette.Chat.Services.DTO
         /// Id of a chat into which a user wrote the message.
         /// </summary>
         public Guid ChatId { get; }
-        
-        /// <summary>
-        /// Name of chat into which a user wrote the message.
-        /// </summary>
-        public string ChatName { get; }
 
         /// <summary>
-        /// Create a new <see cref="MessageDto"/>
+        /// Create a new <see cref="MessageModel"/>
         /// </summary>
-        public MessageDto(MessageEntity entity, string authorName, string chatName)
+        public MessageModel(MessageEntity entity)
         {
+            if (entity.Author == null) throw new ArgumentNullException(nameof(entity.Author));
+            
             Id = entity.Id;
             Created = entity.Created;
             Text = entity.Text;
             AuthorId = entity.AuthorId;
-            AuthorName = authorName;
+            AuthorName = entity.Author.Name;
             ChatId = entity.ChatId;
-            ChatName = chatName;
         }
 
         /// <inheritdoc/>
@@ -65,8 +61,7 @@ namespace Corvette.Chat.Services.DTO
                    $"{nameof(Text)}: {Text}, " +
                    $"{nameof(AuthorId)}: {AuthorId}, " +
                    $"{nameof(AuthorName)}: {AuthorName}, " +
-                   $"{nameof(ChatId)}: {ChatId}, " +
-                   $"{nameof(ChatName)}: {ChatName}";
+                   $"{nameof(ChatId)}: {ChatId}";
         }
     }
 }
