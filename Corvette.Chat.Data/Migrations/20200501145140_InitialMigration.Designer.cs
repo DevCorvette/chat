@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Corvette.Chat.Data.Migrations
 {
     [DbContext(typeof(ChatDataContext))]
-    [Migration("20200229192505_InitialMigration")]
+    [Migration("20200501145140_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,7 +38,12 @@ namespace Corvette.Chat.Data.Migrations
                         .HasColumnType("character varying(200)")
                         .HasMaxLength(200);
 
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Chats");
                 });
@@ -56,8 +61,9 @@ namespace Corvette.Chat.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<Guid?>("LastReadMessageId")
-                        .HasColumnType("uuid");
+                    b.Property<DateTime>("LastReadDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -65,8 +71,6 @@ namespace Corvette.Chat.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ChatId");
-
-                    b.HasIndex("LastReadMessageId");
 
                     b.HasIndex("UserId");
 
@@ -126,6 +130,15 @@ namespace Corvette.Chat.Data.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Corvette.Chat.Data.Entities.ChatEntity", b =>
+                {
+                    b.HasOne("Corvette.Chat.Data.Entities.UserEntity", "Owner")
+                        .WithMany("OwnChats")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Corvette.Chat.Data.Entities.ChatUserEntity", b =>
                 {
                     b.HasOne("Corvette.Chat.Data.Entities.ChatEntity", "Chat")
@@ -133,10 +146,6 @@ namespace Corvette.Chat.Data.Migrations
                         .HasForeignKey("ChatId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Corvette.Chat.Data.Entities.MessageEntity", "LastReadMessage")
-                        .WithMany()
-                        .HasForeignKey("LastReadMessageId");
 
                     b.HasOne("Corvette.Chat.Data.Entities.UserEntity", "User")
                         .WithMany("ChatUsers")

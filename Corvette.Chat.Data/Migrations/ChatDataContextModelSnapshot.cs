@@ -59,8 +59,9 @@ namespace Corvette.Chat.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<Guid?>("LastReadMessageId")
-                        .HasColumnType("uuid");
+                    b.Property<DateTime>("LastReadDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -68,8 +69,6 @@ namespace Corvette.Chat.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ChatId");
-
-                    b.HasIndex("LastReadMessageId");
 
                     b.HasIndex("UserId");
 
@@ -145,10 +144,6 @@ namespace Corvette.Chat.Data.Migrations
                         .HasForeignKey("ChatId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Corvette.Chat.Data.Entities.MessageEntity", "LastReadMessage")
-                        .WithMany()
-                        .HasForeignKey("LastReadMessageId");
 
                     b.HasOne("Corvette.Chat.Data.Entities.UserEntity", "User")
                         .WithMany("ChatUsers")

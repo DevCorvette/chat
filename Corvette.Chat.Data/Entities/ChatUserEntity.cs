@@ -30,13 +30,10 @@ namespace Corvette.Chat.Data.Entities
         public ChatEntity? Chat { get; set; }
         
         /// <summary>
-        /// Id of the last message which the user read.
+        /// Date when the user last see the chat.
+        /// It's date of creating entity by default.
         /// </summary>
-        public Guid? LastReadMessageId { get; set; }
-        
-        /// <summary>
-        /// The last message which the user read in the chat.
-        /// </summary>
-        public MessageEntity? LastReadMessage { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public DateTime LastReadDate { get; set; }
     }
 }
