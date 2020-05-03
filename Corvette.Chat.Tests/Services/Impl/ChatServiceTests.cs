@@ -19,7 +19,7 @@ namespace Corvette.Chat.Tests.Services.Impl
         
         public ChatServiceTests()
         {
-            // create chat servise
+            // create chat service
             var provider = GetServiceCollection<IChatService, ChatService>()
                 .BuildServiceProvider();
 
@@ -37,13 +37,13 @@ namespace Corvette.Chat.Tests.Services.Impl
         }
 
         [Fact]
-        public async Task CreateChatAsync_CreatePrivateChat_CorrectData()
+        public async Task CreatePrivateChatAsync_CorrectData()
         {
             // arrange
             var creator = new UserModel(_owner);
             
             // act
-            var chat = await _service.CreateChatAsync(creator, null, new[] {_member.Id}, true);
+            var chat = await _service.CreatePrivateChatAsync(creator, _member.Id);
 
             // assert
             Check.That(chat).IsNotNull();
@@ -52,14 +52,14 @@ namespace Corvette.Chat.Tests.Services.Impl
         }
         
         [Fact]
-        public async Task CreateChatAsync_CreatePublicChat_CorrectData()
+        public async Task CreatePublicChatAsync_CorrectData()
         {
             // arrange
             var creator = new UserModel(_owner);
             const string name = "chat name";
             
             // act
-            var chat = await _service.CreateChatAsync(creator, name, new[] {_member.Id}, false);
+            var chat = await _service.CreatePublicChatAsync(creator, name);
 
             // assert
             Check.That(chat).IsNotNull();

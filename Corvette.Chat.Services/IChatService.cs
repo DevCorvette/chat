@@ -12,17 +12,22 @@ namespace Corvette.Chat.Services
     public interface IChatService
     {
         /// <summary>
-        /// Creates new public or private chat.
+        /// Creates new public chat.
         /// </summary>
         /// <param name="name">Chat name</param>
         /// <param name="creator">Chat's creator</param>
-        /// <param name="memberIds">Members</param>
-        /// <param name="isPrivate">Is chat private</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        Task<ChatModel> CreatePublicChatAsync(UserModel creator, string name);
+
+        /// <summary>
+        /// Creates new private chat with interlocutor.
+        /// </summary>
+        /// <param name="creator">Chat's creator</param>
+        /// <param name="interlocutorId">Interlocutor id</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="EntityNotFoundException">When chat member not found by id.</exception>
-        /// <exception cref="ChatServiceException">When memberIds contain more than 1 id for private chat.</exception>
-        Task<ChatModel> CreateChatAsync(UserModel creator, string? name, IReadOnlyList<Guid> memberIds, bool isPrivate);
+        /// <exception cref="EntityNotFoundException"></exception>
+        Task<ChatModel> CreatePrivateChatAsync(UserModel creator, Guid interlocutorId);
         
         /// <summary>
         /// Returns all chats where the current user is a member.
@@ -30,6 +35,13 @@ namespace Corvette.Chat.Services
         /// <param name="userId">User id</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         Task<IReadOnlyList<ChatModel>> GetAllChatsAsync(Guid userId);
+
+        /// <summary>
+        /// Returns chat by id for the user.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="EntityNotFoundException"></exception>
+        Task<ChatModel> GetChatAsync(UserModel user, Guid chatId);
 
         /// <summary>
         /// Renames a public chat.
@@ -62,6 +74,7 @@ namespace Corvette.Chat.Services
         /// <param name="chatId">Chat id</param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="ForbiddenException">When action user isn't a chat owner.</exception>
-        Task RemoveAsync(UserModel owner, Guid chatId);
+        /// <exception cref="ChatServiceException">When action user isn't a chat owner.</exception>
+        Task RemovePublicAsync(UserModel owner, Guid chatId);
     }
 }

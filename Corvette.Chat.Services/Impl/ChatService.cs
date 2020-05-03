@@ -23,53 +23,69 @@ namespace Corvette.Chat.Services.Impl
             ILogger<ChatService> logger, 
             IChatDataContextFactory contextFactory)
         {
-            _logger = logger;
-            _contextFactory = contextFactory;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
         }
         
         /// <inheritdoc/>
-        public async Task<ChatModel> CreateChatAsync(UserModel creator, string? name, IReadOnlyList<Guid> memberIds, bool isPrivate)
+        public async Task<ChatModel> CreatePublicChatAsync(UserModel creator, string name)
         {
-            _logger.LogDebug($"{nameof(CreateChatAsync)} started by creator with id: {creator.Id}, chat name: {name}, isPrivate: {isPrivate}");
+            _logger.LogDebug($"{nameof(CreatePublicChatAsync)} started by creator with id: {creator.Id}, chat name: {name}");
             await using var context = _contextFactory.CreateContext();
 
             // checks
             if (creator == null) throw new ArgumentNullException(nameof(creator));
-            if (memberIds == null) throw new ArgumentNullException(nameof(memberIds));
-            if (memberIds.Count < 1) throw new ArgumentOutOfRangeException(nameof(memberIds), "Can't be empty.");
-            if (!name.HasValue() && !isPrivate) throw new ArgumentOutOfRangeException(nameof(name), "Can't be empty or null for public chat.");
-            if (memberIds.Count > 1 && isPrivate) throw new ChatServiceException("Can't create a private chat between more than 2 users.");
-            
-            // get and check members
-            var members = await context.Users.AsNoTracking()
-                .Where(x => memberIds.Contains(x.Id))
-                .ToListAsync();
-            
-            if (members.Count < 1)
-                throw new EntityNotFoundException("Members wasn't found. Can't create a chat without members.");
+            if (!name.HasValue()) throw new ArgumentNullException(nameof(name), "Can't be empty or null for public chat.");
 
             // create
             var chat = new ChatEntity
             {
                 OwnerId = creator.Id,
-                IsPrivate = isPrivate,
-                Name = isPrivate ? null : name,
-                ChatUsers = members
-                    .Select(x => new ChatUserEntity {UserId = x.Id})
-                    .ToList(),
+                Name = name,
+                IsPrivate = false,
             };
 
             context.Add(chat);
             await context.SaveChangesAsync();
 
             // result
-            var model = new ChatModel(
-                chat, 
-                isPrivate ? members.First().Name : chat.Name, 
-                null, 
-                0);
+            var model = new ChatModel(chat, chat.Name, null);
 
-            _logger.LogInformation($"{nameof(CreateChatAsync)} successfully created new chat: {model}");
+            _logger.LogInformation($"{nameof(CreatePublicChatAsync)} successfully created new chat: {model}");
+            return model;
+        }
+        
+        /// <inheritdoc/>
+        public async Task<ChatModel> CreatePrivateChatAsync(UserModel creator, Guid interlocutorId)
+        {
+            _logger.LogDebug($"{nameof(CreatePrivateChatAsync)} started by creator with id: {creator.Id}, {nameof(interlocutorId)}: {interlocutorId}");
+            await using var context = _contextFactory.CreateContext();
+
+            // checks
+            if (creator == null) throw new ArgumentNullException(nameof(creator));
+            if (interlocutorId == default) throw new ArgumentOutOfRangeException(nameof(interlocutorId));
+
+            var interlocutorName = await context.Users
+                                       .Where(x => x.Id == interlocutorId)
+                                       .Select(x => x.Name)
+                                       .SingleOrDefaultAsync()
+                                   ?? throw new EntityNotFoundException($"Interlocutor by id: {interlocutorId} was not found.");
+
+            // create
+            var chat = new ChatEntity
+            {
+                OwnerId = creator.Id,
+                IsPrivate = true,
+                ChatUsers = new List<ChatUserEntity> {new ChatUserEntity {UserId = interlocutorId}},
+            };
+
+            context.Add(chat);
+            await context.SaveChangesAsync();
+
+            // result
+            var model = new ChatModel(chat, interlocutorName, null);
+
+            _logger.LogInformation($"{nameof(CreatePrivateChatAsync)} successfully created new chat: {model}");
             return model;
         }
 
@@ -86,6 +102,9 @@ namespace Corvette.Chat.Services.Impl
                 .Where(x => x.UserId == userId)
                 .Select(x => x.Chat)
                 .ToListAsync();
+            
+            // early exit
+            if (allChats.Count == 0) return new ChatModel[0];
             
             // find names for private chats
             var privateChatIds = allChats
@@ -105,29 +124,80 @@ namespace Corvette.Chat.Services.Impl
                     join m in context.Messages on cu.ChatId equals m.ChatId
                     where cu.UserId == userId
                     orderby m.Created descending
-                    select m)
+                    group m by m.ChatId into gr
+                    select gr.First())
                 .Include(m => m.Author)
-                .GroupBy(x => x.ChatId)
-                .Select(x => x.First())
-                .ToDictionaryAsync(x => x.ChatId, x => x);
+                .ToDictionaryAsync(mes => mes.ChatId, mes => mes);
 
             // count unread
             var countDic = await (from cu in context.ChatUsers
                     join m in context.Messages on cu.ChatId equals m.ChatId
                     where cu.UserId == userId
                     where m.Created > cu.LastReadDate
-                    select m)
-                .GroupBy(x => x.ChatId)
+                    group m by m.ChatId into gr
+                    select gr)
                 .ToDictionaryAsync(g => g.Key, g => g.Count());
                 
             // convert
             var models = allChats.ConvertAll(x => new ChatModel(
                 x,
                 x.IsPrivate ? privateNames[x.Id] : x.Name,
-                new MessageModel(messagesDic[x.Id]), 
-                countDic[x.Id]));
+                new MessageModel(messagesDic[x.Id], countDic[x.Id])));
             
             return models;
+        }
+
+        /// <inheritdoc/>
+        public async Task<ChatModel> GetChatAsync(UserModel user, Guid chatId)
+        {
+            await using var context = _contextFactory.CreateContext();
+            
+            // check
+            if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            
+            // chat
+            var chat = await context.Chats
+                           .Where(x => x.Id == chatId)
+                           .SingleOrDefaultAsync()
+                       ?? throw new EntityNotFoundException($"Chat by id: {chatId} was not found.");
+
+            // name
+            var chatName = chat.Name;
+            if (chat.IsPrivate)
+            {
+                chatName = await context.ChatUsers
+                               .Where(x => x.ChatId == chatId)
+                               .Where(x => x.UserId != user.Id)
+                               .Select(x => x.User.Name)
+                               .SingleOrDefaultAsync()
+                           ?? throw new EntityNotFoundException($"Can't find interlocutor in private chat: {chatId}");
+            }
+            
+            // message
+            var message = await context.Messages
+                .Where(x => x.ChatId == chatId)
+                .OrderByDescending(x => x.Created)
+                .Include(x => x.Author)
+                .FirstOrDefaultAsync();
+
+            // unread
+            var count = 0;
+            if (message != null)
+            {
+                count = await (from cu in context.ChatUsers
+                        join m in context.Messages on cu.ChatId equals m.ChatId
+                        where cu.UserId == user.Id
+                        where m.Created > cu.LastReadDate
+                        select m)
+                    .CountAsync();
+            }
+            
+            // result
+            return new ChatModel(
+                chat, 
+                chatName, 
+                message != null ? new MessageModel(message, count) : null);
         }
 
         /// <inheritdoc/>
@@ -185,9 +255,9 @@ namespace Corvette.Chat.Services.Impl
         }
 
         /// <inheritdoc/>
-        public async Task RemoveAsync(UserModel owner, Guid chatId)
+        public async Task RemovePublicAsync(UserModel owner, Guid chatId)
         {
-            _logger.LogDebug($"{nameof(RemoveAsync)} started by user with id: {owner.Id} for chat id: {chatId}");
+            _logger.LogDebug($"{nameof(RemovePublicAsync)} started by user with id: {owner.Id} for chat id: {chatId}");
             await using var context = _contextFactory.CreateContext();
 
             // checks
@@ -199,11 +269,13 @@ namespace Corvette.Chat.Services.Impl
                        ?? throw new EntityNotFoundException($"Chat by id: {chatId} was not found.");
             
             if (chat.OwnerId != owner.Id) throw new ForbiddenException("Can't remove the chat because the current user is not the owner.");
+            if (chat.IsPrivate) throw new ChatServiceException("Can't remove private chat.");
 
+            // remove
             context.Remove(chat);
             await context.SaveChangesAsync();
 
-            _logger.LogInformation($"{nameof(RemoveAsync)} successfully remove chat with id: {chatId}");
+            _logger.LogInformation($"{nameof(RemovePublicAsync)} successfully remove chat with id: {chatId}");
         }
     }
 }

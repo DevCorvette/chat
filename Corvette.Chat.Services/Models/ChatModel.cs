@@ -34,24 +34,17 @@ namespace Corvette.Chat.Services.Models
         public MessageModel? LastMessage { get; }
         
         /// <summary>
-        /// Count of messages which current user unread yet.
-        /// </summary>
-        public int UnreadCount { get; }
-        
-        /// <summary>
         /// Create a new <see cref="ChatModel"/>
         /// </summary>
-        public ChatModel(ChatEntity chat, string chatName, MessageModel? lastMessage, int unreadCount)
+        public ChatModel(ChatEntity chat, string chatName, MessageModel? lastMessage)
         {
             if (string.IsNullOrWhiteSpace(chatName)) throw new ArgumentOutOfRangeException(nameof(chatName));
-            if (unreadCount < 0) throw new ArgumentOutOfRangeException(nameof(unreadCount));
             
             Id = chat.Id;
             Created = chat.Created;
             IsPrivate = chat.IsPrivate;
             Name = chatName;
             LastMessage = lastMessage;
-            UnreadCount = unreadCount;
         }
 
         /// <inheritdoc/>

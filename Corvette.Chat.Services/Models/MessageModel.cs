@@ -6,13 +6,8 @@ namespace Corvette.Chat.Services.Models
     /// <summary>
     /// A message which a user adds to a chat.
     /// </summary>
-    public sealed class MessageModel
+    public class MessageModel
     {
-        /// <summary>
-        /// Message id.
-        /// </summary>
-        public Guid Id { get; }
-        
         /// <summary>
         /// Date when message was created.
         /// </summary>
@@ -37,31 +32,47 @@ namespace Corvette.Chat.Services.Models
         /// Id of a chat into which a user wrote the message.
         /// </summary>
         public Guid ChatId { get; }
+        
+        public int UnreadCount { get; }
 
         /// <summary>
-        /// Create a new <see cref="MessageModel"/>
+        /// Create a new <see cref="MessageModel"/>.
+        /// Needs to include an author inside the entity.
         /// </summary>
-        public MessageModel(MessageEntity entity)
+        public MessageModel(MessageEntity entity, int unreadCount)
         {
             if (entity.Author == null) throw new ArgumentNullException(nameof(entity.Author));
             
-            Id = entity.Id;
             Created = entity.Created;
             Text = entity.Text;
             AuthorId = entity.AuthorId;
             AuthorName = entity.Author.Name;
             ChatId = entity.ChatId;
+            UnreadCount = unreadCount;
+        }
+        
+        /// <summary>
+        /// Create a new <see cref="MessageModel"/>
+        /// </summary>
+        public MessageModel(MessageEntity entity, string authorName, int unreadCount)
+        {
+            Created = entity.Created;
+            Text = entity.Text;
+            AuthorId = entity.AuthorId;
+            AuthorName = authorName;
+            ChatId = entity.ChatId;
+            UnreadCount = unreadCount;
         }
 
         /// <inheritdoc/>
         public override string ToString()
         {
-            return $"{nameof(Id)}: {Id}, " +
-                   $"{nameof(Created)}: {Created}, " +
+            return $"{nameof(Created)}: {Created}, " +
                    $"{nameof(Text)}: {Text}, " +
                    $"{nameof(AuthorId)}: {AuthorId}, " +
                    $"{nameof(AuthorName)}: {AuthorName}, " +
-                   $"{nameof(ChatId)}: {ChatId}";
+                   $"{nameof(ChatId)}: {ChatId}, " +
+                   $"{nameof(UnreadCount)}: {UnreadCount}";
         }
     }
 }
