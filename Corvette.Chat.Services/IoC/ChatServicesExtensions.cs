@@ -21,6 +21,7 @@ namespace Corvette.Chat.Services.IoC
             services.AddSingleton<IChatDataContextFactory>(new ChatDataContextFactory(connectionString));
             
             services.AddSingleton<IUserService, UserService>();
+            services.AddSingleton<IChatService, ChatService>();
 
             return services;
         }

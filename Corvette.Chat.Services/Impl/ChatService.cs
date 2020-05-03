@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace Corvette.Chat.Services.Impl
 {
     /// <inheritdoc/>
-    public class ChatService : IChatService
+    public sealed class ChatService : IChatService
     {
         private readonly ILogger<ChatService> _logger;
 
