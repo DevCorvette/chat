@@ -33,13 +33,11 @@ namespace Corvette.Chat.Services.Models
         /// </summary>
         public Guid ChatId { get; }
         
-        public int UnreadCount { get; }
-
         /// <summary>
         /// Create a new <see cref="MessageModel"/>.
         /// Needs to include an author inside the entity.
         /// </summary>
-        public MessageModel(MessageEntity entity, int unreadCount)
+        public MessageModel(MessageEntity entity)
         {
             if (entity.Author == null) throw new ArgumentNullException(nameof(entity.Author));
             
@@ -48,20 +46,18 @@ namespace Corvette.Chat.Services.Models
             AuthorId = entity.AuthorId;
             AuthorName = entity.Author.Name;
             ChatId = entity.ChatId;
-            UnreadCount = unreadCount;
         }
         
         /// <summary>
         /// Create a new <see cref="MessageModel"/>
         /// </summary>
-        public MessageModel(MessageEntity entity, string authorName, int unreadCount)
+        public MessageModel(MessageEntity entity, string authorName)
         {
             Created = entity.Created;
             Text = entity.Text;
             AuthorId = entity.AuthorId;
             AuthorName = authorName;
             ChatId = entity.ChatId;
-            UnreadCount = unreadCount;
         }
 
         /// <inheritdoc/>
@@ -71,8 +67,7 @@ namespace Corvette.Chat.Services.Models
                    $"{nameof(Text)}: {Text}, " +
                    $"{nameof(AuthorId)}: {AuthorId}, " +
                    $"{nameof(AuthorName)}: {AuthorName}, " +
-                   $"{nameof(ChatId)}: {ChatId}, " +
-                   $"{nameof(UnreadCount)}: {UnreadCount}";
+                   $"{nameof(ChatId)}: {ChatId}";
         }
     }
 }

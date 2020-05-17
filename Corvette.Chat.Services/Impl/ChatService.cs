@@ -49,9 +49,9 @@ namespace Corvette.Chat.Services.Impl
             await context.SaveChangesAsync();
 
             // result
-            var model = new ChatModel(chat, chat.Name, null);
+            var model = new ChatModel(chat, chat.Name, null, 0);
 
-            _logger.LogInformation($"{nameof(CreatePublicChatAsync)} successfully created new chat: {model}");
+            _logger.LogInformation($"{nameof(CreatePublicChatAsync)} successfully created new public chat: {model}");
             return model;
         }
         
@@ -83,9 +83,9 @@ namespace Corvette.Chat.Services.Impl
             await context.SaveChangesAsync();
 
             // result
-            var model = new ChatModel(chat, interlocutorName, null);
+            var model = new ChatModel(chat, interlocutorName, null, 0);
 
-            _logger.LogInformation($"{nameof(CreatePrivateChatAsync)} successfully created new chat: {model}");
+            _logger.LogInformation($"{nameof(CreatePrivateChatAsync)} successfully created new private chat: {model}");
             return model;
         }
 
@@ -142,7 +142,8 @@ namespace Corvette.Chat.Services.Impl
             var models = allChats.ConvertAll(x => new ChatModel(
                 x,
                 x.IsPrivate ? privateNames[x.Id] : x.Name,
-                new MessageModel(messagesDic[x.Id], countDic[x.Id])));
+                new MessageModel(messagesDic[x.Id]),
+                countDic[x.Id]));
             
             return models;
         }
@@ -197,7 +198,8 @@ namespace Corvette.Chat.Services.Impl
             return new ChatModel(
                 chat, 
                 chatName, 
-                message != null ? new MessageModel(message, count) : null);
+                message != null ? new MessageModel(message) : null,
+                count);
         }
 
         /// <inheritdoc/>

@@ -22,6 +22,7 @@ namespace Corvette.Chat.Services.IoC
             
             services.AddSingleton<IUserService, UserService>();
             services.AddSingleton<IChatService, ChatService>();
+            services.AddSingleton<IMessageService, MessageService>();
 
             return services;
         }

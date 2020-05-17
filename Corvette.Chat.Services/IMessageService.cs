@@ -16,12 +16,19 @@ namespace Corvette.Chat.Services
         Task<IReadOnlyList<MessageForRecipient>> AddMessageAsync(UserModel author, Guid chatId, string text);
 
         /// <summary>
-        /// Returns messages by chat.
+        /// Returns half read and half unread messages of the chat.
+        /// Use this method to entering in the chat.
         /// </summary>
-        /// <param name="chatId">Id of chat</param>
-        /// <param name="skip"></param>
-        /// <param name="take"></param>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        Task<IReadOnlyList<MessageModel>> GetMessagesAsync(Guid chatId, DateTime? skip, int take);
+        /// <exception cref="ArgumentNullException"></exception>
+        Task<IReadOnlyList<MessageModel>> GetLastWithUnread(UserModel user, Guid chatId, int take);
+        
+        /// <summary>
+        /// Returns chat messages with skip and take params.
+        /// Use this method for scroll up or down.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
+        Task<IReadOnlyList<MessageModel>> GetMessagesAsync(UserModel user, Guid chatId, DateTime skip, int take, bool isSkipTop);
     }
 }

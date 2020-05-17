@@ -35,6 +35,8 @@ namespace Corvette.Chat.Services.Impl
             if (author == null) throw new ArgumentNullException(nameof(author));
             if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
             if (!text.HasValue()) throw new ArgumentNullException(nameof(text));
+            
+            // todo: add check access
 
             // add message
             var message = new MessageEntity
@@ -49,7 +51,7 @@ namespace Corvette.Chat.Services.Impl
             
             _logger.LogDebug($"{nameof(AddMessageAsync)} successfully added message id: {message.Id} by authorId: {author.Id}, chatId: {chatId}");
 
-            // count unread
+            // count unread for all recipients
             var recipients = await (from cu in context.ChatUsers
                     join m in context.Messages on cu.ChatId equals m.ChatId
                     where cu.ChatId == chatId
@@ -67,9 +69,68 @@ namespace Corvette.Chat.Services.Impl
         }
 
         /// <inheritdoc/>
-        public Task<IReadOnlyList<MessageModel>> GetMessagesAsync(Guid chatId, DateTime? skip, int take)
+        public async Task<IReadOnlyList<MessageModel>> GetLastWithUnread(UserModel user, Guid chatId, int take)
         {
-            throw new NotImplementedException();
+            await using var context = _contextFactory.CreateContext();
+
+            if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
+            if (take <= 0) throw new ArgumentOutOfRangeException(nameof(take));
+            
+            // todo: add check access
+
+            var lastReadDate = await context.ChatUsers
+                .Where(x => x.UserId == user.Id)
+                .Where(x => x.ChatId == chatId)
+                .Select(x => x.LastReadDate)
+                .SingleOrDefaultAsync();
+            
+            var messages = new List<MessageModel>(take);
+            
+            var query = context.Messages
+                .Where(x => x.ChatId == chatId)
+                .OrderByDescending(x => x.Created)
+                .AsQueryable();
+
+            // get read
+            messages.AddRange(await query
+                .Where(x => x.Created > lastReadDate) // top half
+                .Select(x => new MessageModel(x, x.Author.Name))
+                .Take(take/2) 
+                .ToListAsync());
+            
+            // get unred
+            messages.AddRange(await query
+                .Where(x => x.Created < lastReadDate) // lower half
+                .Select(x => new MessageModel(x, x.Author.Name))
+                .Take(take - messages.Count)
+                .ToListAsync());
+
+            return messages;
+        }
+        
+        /// <inheritdoc/>
+        public async Task<IReadOnlyList<MessageModel>> GetMessagesAsync(UserModel user, Guid chatId, DateTime skip, int take, bool isSkipTop)
+        {
+            await using var context = _contextFactory.CreateContext();
+
+            if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
+            if (take <= 0) throw new ArgumentOutOfRangeException(nameof(take));
+            
+            // todo: add check access
+            
+            var query = context.Messages
+                .Where(x => x.ChatId == chatId)
+                .OrderByDescending(x => x.Created)
+                .AsQueryable();
+
+            query = isSkipTop 
+                ? query.Where(x => x.Created > skip)  // skip top messages
+                : query.Where(x => x.Created < skip); // skip lower messages
+
+            return await query
+                .Select(x => new MessageModel(x, x.Author.Name))
+                .Take(take)
+                .ToListAsync();
         }
     }
 }
