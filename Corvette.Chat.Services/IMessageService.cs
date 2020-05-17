@@ -21,7 +21,7 @@ namespace Corvette.Chat.Services
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        Task<IReadOnlyList<MessageModel>> GetLastWithUnread(UserModel user, Guid chatId, int take);
+        Task<IReadOnlyList<MessageModel>> GetLastWithUnreadAsync(UserModel user, Guid chatId, int take);
         
         /// <summary>
         /// Returns chat messages with skip and take params.

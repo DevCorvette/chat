@@ -17,12 +17,16 @@ namespace Corvette.Chat.Services.Impl
 
         private readonly IChatDataContextFactory _contextFactory;
 
+        private readonly IChatUserService _chatUserService;
+
         public MessageService(
             ILogger<MessageService> logger, 
-            IChatDataContextFactory contextFactory)
+            IChatDataContextFactory contextFactory, 
+            IChatUserService chatUserService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+            _chatUserService = chatUserService ?? throw new ArgumentNullException(nameof(chatUserService));
         }
 
         /// <inheritdoc/>
@@ -35,8 +39,7 @@ namespace Corvette.Chat.Services.Impl
             if (author == null) throw new ArgumentNullException(nameof(author));
             if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
             if (!text.HasValue()) throw new ArgumentNullException(nameof(text));
-            
-            // todo: add check access
+            await _chatUserService.ThrowIfAccessDenied(context, author.Id, chatId);
 
             // add message
             var message = new MessageEntity
@@ -69,15 +72,14 @@ namespace Corvette.Chat.Services.Impl
         }
 
         /// <inheritdoc/>
-        public async Task<IReadOnlyList<MessageModel>> GetLastWithUnread(UserModel user, Guid chatId, int take)
+        public async Task<IReadOnlyList<MessageModel>> GetLastWithUnreadAsync(UserModel user, Guid chatId, int take)
         {
             await using var context = _contextFactory.CreateContext();
 
-            if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
             if (take <= 0) throw new ArgumentOutOfRangeException(nameof(take));
-            
-            // todo: add check access
+            await _chatUserService.ThrowIfAccessDenied(context, user.Id, chatId);
 
+            // get last read date
             var lastReadDate = await context.ChatUsers
                 .Where(x => x.UserId == user.Id)
                 .Where(x => x.ChatId == chatId)
@@ -113,11 +115,10 @@ namespace Corvette.Chat.Services.Impl
         {
             await using var context = _contextFactory.CreateContext();
 
-            if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
             if (take <= 0) throw new ArgumentOutOfRangeException(nameof(take));
+            await _chatUserService.ThrowIfAccessDenied(context, user.Id, chatId);
             
-            // todo: add check access
-            
+            // get
             var query = context.Messages
                 .Where(x => x.ChatId == chatId)
                 .OrderByDescending(x => x.Created)
