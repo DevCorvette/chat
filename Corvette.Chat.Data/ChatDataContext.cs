@@ -74,6 +74,9 @@ namespace Corvette.Chat.Data
                     .WithMany(x => x!.ChatUsers)
                     .HasForeignKey(x => x.ChatId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(x => new {x.ChatId, x.UserId})
+                    .IsUnique();
             });
 
             builder.Entity<ChatEntity>(entity =>

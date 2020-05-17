@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Corvette.Chat.Data;
 using Corvette.Chat.Services.Exceptions;
+using Corvette.Chat.Services.Models;
 
 namespace Corvette.Chat.Services
 {
@@ -10,9 +12,25 @@ namespace Corvette.Chat.Services
         /// <summary>
         /// Throws Forbidden exception when can't find the user in the chat.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ForbiddenException"></exception>
         Task ThrowIfAccessDenied(ChatDataContext context, Guid userId, Guid chatId);
+
+        /// <summary>
+        /// Returns list of members.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        Task<IReadOnlyList<UserModel>> GetMembersAsync(UserModel user, Guid chatId);
+
+        /// <summary>
+        /// Adds members to the chat.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ForbiddenException"></exception>
+        /// <exception cref="EntityNotFoundException"></exception>
+        /// <exception cref="ChatServiceException"></exception>
+        Task AddMembersAsync(UserModel owner, Guid chatId, IReadOnlyList<Guid> newMemberIds);
+        
+        // todo: leave chat
     }
 }

@@ -76,6 +76,7 @@ namespace Corvette.Chat.Services.Impl
         {
             await using var context = _contextFactory.CreateContext();
 
+            if (user == null) throw new ArgumentNullException(nameof(user));
             if (take <= 0) throw new ArgumentOutOfRangeException(nameof(take));
             await _chatUserService.ThrowIfAccessDenied(context, user.Id, chatId);
 
@@ -115,6 +116,7 @@ namespace Corvette.Chat.Services.Impl
         {
             await using var context = _contextFactory.CreateContext();
 
+            if (user == null) throw new ArgumentNullException(nameof(user));
             if (take <= 0) throw new ArgumentOutOfRangeException(nameof(take));
             await _chatUserService.ThrowIfAccessDenied(context, user.Id, chatId);
             

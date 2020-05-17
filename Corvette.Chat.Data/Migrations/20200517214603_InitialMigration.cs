@@ -101,14 +101,15 @@ namespace Corvette.Chat.Data.Migrations
                 column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatUsers_ChatId",
-                table: "ChatUsers",
-                column: "ChatId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ChatUsers_UserId",
                 table: "ChatUsers",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ChatUsers_ChatId_UserId",
+                table: "ChatUsers",
+                columns: new[] { "ChatId", "UserId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Messages_AuthorId",

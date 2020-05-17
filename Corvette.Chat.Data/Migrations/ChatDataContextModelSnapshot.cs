@@ -68,9 +68,10 @@ namespace Corvette.Chat.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ChatId");
-
                     b.HasIndex("UserId");
+
+                    b.HasIndex("ChatId", "UserId")
+                        .IsUnique();
 
                     b.ToTable("ChatUsers");
                 });
