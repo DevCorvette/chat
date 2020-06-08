@@ -7,7 +7,7 @@ using Corvette.Chat.Services.Models;
 
 namespace Corvette.Chat.Services
 {
-    public interface IChatUserService
+    public interface IMemberService
     {
         /// <summary>
         /// Throws Forbidden exception when can't find the user in the chat.

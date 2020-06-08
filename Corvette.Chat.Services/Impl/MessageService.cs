@@ -17,16 +17,16 @@ namespace Corvette.Chat.Services.Impl
 
         private readonly IChatDataContextFactory _contextFactory;
 
-        private readonly IChatUserService _chatUserService;
+        private readonly IMemberService _memberService;
 
         public MessageService(
             ILogger<MessageService> logger, 
             IChatDataContextFactory contextFactory, 
-            IChatUserService chatUserService)
+            IMemberService memberService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
-            _chatUserService = chatUserService ?? throw new ArgumentNullException(nameof(chatUserService));
+            _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
         }
 
         /// <inheritdoc/>
@@ -39,7 +39,7 @@ namespace Corvette.Chat.Services.Impl
             if (author == null) throw new ArgumentNullException(nameof(author));
             if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
             if (!text.HasValue()) throw new ArgumentNullException(nameof(text));
-            await _chatUserService.ThrowIfAccessDenied(context, author.Id, chatId);
+            await _memberService.ThrowIfAccessDenied(context, author.Id, chatId);
 
             // add message
             var message = new MessageEntity
@@ -78,7 +78,7 @@ namespace Corvette.Chat.Services.Impl
 
             if (user == null) throw new ArgumentNullException(nameof(user));
             if (take <= 0) throw new ArgumentOutOfRangeException(nameof(take));
-            await _chatUserService.ThrowIfAccessDenied(context, user.Id, chatId);
+            await _memberService.ThrowIfAccessDenied(context, user.Id, chatId);
 
             // get last read date
             var lastReadDate = await context.ChatUsers
@@ -118,7 +118,7 @@ namespace Corvette.Chat.Services.Impl
 
             if (user == null) throw new ArgumentNullException(nameof(user));
             if (take <= 0) throw new ArgumentOutOfRangeException(nameof(take));
-            await _chatUserService.ThrowIfAccessDenied(context, user.Id, chatId);
+            await _memberService.ThrowIfAccessDenied(context, user.Id, chatId);
             
             // get
             var query = context.Messages

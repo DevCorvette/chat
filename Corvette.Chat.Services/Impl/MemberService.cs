@@ -11,13 +11,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Corvette.Chat.Services.Impl
 {
-    public class ChatUserService : IChatUserService
+    public class MemberService : IMemberService
     {
-        private readonly ILogger<ChatUserService> _logger;
+        private readonly ILogger<MemberService> _logger;
         
         private readonly IChatDataContextFactory _contextFactory;
 
-        public ChatUserService(ILogger<ChatUserService> logger, IChatDataContextFactory contextFactory)
+        public MemberService(ILogger<MemberService> logger, IChatDataContextFactory contextFactory)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
