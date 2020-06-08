@@ -23,16 +23,25 @@ namespace Corvette.Chat.Services
         Task<IReadOnlyList<UserModel>> GetMembersAsync(UserModel user, Guid chatId);
 
         /// <summary>
-        /// Adds members to the chat.
+        /// Adds members to the public chat.
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ForbiddenException"></exception>
         /// <exception cref="EntityNotFoundException"></exception>
         /// <exception cref="ChatServiceException"></exception>
         Task AddMembersAsync(UserModel owner, Guid chatId, IReadOnlyList<Guid> newMemberIds);
+        
+        /// <summary>
+        /// Removes members from the public chat.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ForbiddenException"></exception>
+        /// <exception cref="EntityNotFoundException"></exception>
+        /// <exception cref="ChatServiceException"></exception>
+        Task RemoveMembersAsync(UserModel owner, Guid chatId, IReadOnlyList<Guid> memberIds);
 
         /// <summary>
-        /// Removes a user from the chat.
+        /// Removes a user from the public chat.
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="EntityNotFoundException"></exception>

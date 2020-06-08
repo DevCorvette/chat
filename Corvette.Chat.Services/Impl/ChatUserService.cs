@@ -61,7 +61,7 @@ namespace Corvette.Chat.Services.Impl
             // checks
             if (owner == null) throw new ArgumentNullException(nameof(owner));
             if (newMemberIds == null) throw new ArgumentNullException(nameof(newMemberIds));
-            _logger.LogDebug($"{nameof(AddMembersAsync)} started by user with id: {owner.Id} for chat with id: {chatId} and {newMemberIds.Count} new members");
+            _logger.LogDebug($"{nameof(AddMembersAsync)} started by owner with id: {owner.Id} for chat with id: {chatId} and {newMemberIds.Count} new members");
 
             var chat = await context.Chats
                            .SingleOrDefaultAsync(x => x.Id == chatId)
@@ -102,6 +102,44 @@ namespace Corvette.Chat.Services.Impl
             _logger.LogInformation($"{nameof(AddMembersAsync)} successfully added {count} new members to chat with id: {chatId}");
         }
 
+        /// <inheritdoc/>
+        public async Task RemoveMembersAsync(UserModel owner, Guid chatId, IReadOnlyList<Guid> memberIds)
+        {
+            await using var context = _contextFactory.CreateContext();
+            
+            _logger.LogDebug($"{nameof(RemoveMembersAsync)} started by owner with id: {owner.Id} for chat with id: {chatId} and {memberIds.Count} new members");
+
+            // checks
+            var chat = await context.Chats
+                           .SingleOrDefaultAsync(x => x.Id == chatId)
+                       ?? throw new EntityNotFoundException($"Chat with id: {chatId} was not found.");
+            
+            if (chat.OwnerId != owner.Id) throw new ForbiddenException("Can't remove members from the chat because the current user is not the owner.");
+            if (chat.IsPrivate) throw new ChatServiceException("Can't remove members from the chat because private chat can has only 2 members.");
+
+            foreach (var memberId in memberIds)
+            {
+                var member = await context.ChatUsers
+                    .Where(x => x.UserId == memberId)
+                    .Where(x => x.ChatId == chatId)
+                    .SingleOrDefaultAsync();
+
+                // remove
+                if (member != null)
+                {
+                    context.ChatUsers.Remove(member);
+                    _logger.LogInformation($"{nameof(RemoveMembersAsync)} successfully removed user with id: {memberId} form a chat with id: {chatId}");
+                }
+                else
+                {
+                    _logger.LogInformation($"{nameof(RemoveMembersAsync)} can't find user with id: {memberId} in a chat with id: {chatId}. Maybe he has left chat already.");
+                }
+            }
+
+            await context.SaveChangesAsync();
+            _logger.LogDebug($"{nameof(RemoveMembersAsync)} successfully finished for a chat with id: {chatId}");
+        }
+        
         /// <inheritdoc/>
         public async Task LeaveChatAsync(UserModel user, Guid chatId)
         {
