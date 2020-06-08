@@ -38,6 +38,12 @@ namespace Corvette.Chat.Services
         Task<UserModel> GetUserAsync(Guid id);
 
         /// <summary>
+        /// Returns users filtered by the search string.
+        /// Returns all users if the search string is null.
+        /// </summary>
+        Task<IReadOnlyList<UserModel>> GetUsersAsync(string? search);
+
+        /// <summary>
         /// Removes users from the database.
         /// </summary>
         /// <param name="userIds">List of user ids which will remove</param>

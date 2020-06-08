@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Corvette.Chat.Data;
 using Corvette.Chat.Data.Entities;
 using Corvette.Chat.Services.Exceptions;
+using Corvette.Chat.Services.Extensions;
 using Corvette.Chat.Services.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -87,6 +88,19 @@ namespace Corvette.Chat.Services.Impl
                        ?? throw new EntityNotFoundException($"User by id: {id} was not found");
             
             return new UserModel(user);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IReadOnlyList<UserModel>> GetUsersAsync(string? search)
+        {
+            await using var context = _contextFactory.CreateContext();
+
+            var users = await context.Users
+                .Where(x => !search.HasValue()
+                            || x.Name.ToLower().Contains(search.ToLower()))
+                .ToListAsync();
+
+            return users.ConvertAll(x => new UserModel(x)).ToList();
         }
 
         /// <inheritdoc/>
