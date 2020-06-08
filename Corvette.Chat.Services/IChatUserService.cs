@@ -30,7 +30,12 @@ namespace Corvette.Chat.Services
         /// <exception cref="EntityNotFoundException"></exception>
         /// <exception cref="ChatServiceException"></exception>
         Task AddMembersAsync(UserModel owner, Guid chatId, IReadOnlyList<Guid> newMemberIds);
-        
-        // todo: leave chat
+
+        /// <summary>
+        /// Removes a user from the chat.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="EntityNotFoundException"></exception>
+        Task LeaveChatAsync(UserModel user, Guid chatId);
     }
 }

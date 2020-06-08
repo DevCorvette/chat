@@ -101,5 +101,27 @@ namespace Corvette.Chat.Services.Impl
             await context.SaveChangesAsync();
             _logger.LogInformation($"{nameof(AddMembersAsync)} successfully added {count} new members to chat with id: {chatId}");
         }
+
+        /// <inheritdoc/>
+        public async Task LeaveChatAsync(UserModel user, Guid chatId)
+        {
+            await using var context = _contextFactory.CreateContext();
+            
+            // checks
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            _logger.LogDebug($"{nameof(LeaveChatAsync)} started by user with id: {user.Id} for chat with id: {chatId}");
+
+            var chatUser = await context.ChatUsers
+                           .Where(x => x.UserId == user.Id)
+                           .Where(x => x.ChatId == chatId)
+                           .SingleOrDefaultAsync()
+                       ?? throw new EntityNotFoundException($"User with id: {user.Id} was not found in a chat with id: {chatId}.");
+
+            // remove
+            context.ChatUsers.Remove(chatUser);
+            await context.SaveChangesAsync();
+            
+            _logger.LogInformation($"{nameof(LeaveChatAsync)} successfully finished for user with id: {user.Id} and chat with id: {chatId}");
+        }
     }
 }
