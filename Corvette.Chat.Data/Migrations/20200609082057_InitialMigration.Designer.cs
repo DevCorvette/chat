@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Corvette.Chat.Data.Migrations
 {
     [DbContext(typeof(ChatDataContext))]
-    [Migration("20200517214603_InitialMigration")]
+    [Migration("20200609082057_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -118,15 +118,29 @@ namespace Corvette.Chat.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasColumnType("character varying(200)")
+                        .HasMaxLength(200);
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("character varying(200)")
                         .HasMaxLength(200);
 
+                    b.Property<string>("SecretKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Login")
+                        .IsUnique();
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("Login", "SecretKey");
 
                     b.ToTable("Users");
                 });

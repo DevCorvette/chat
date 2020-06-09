@@ -48,6 +48,11 @@ namespace Corvette.Chat.Data
             {
                 entity.HasIndex(x => x.Name)
                     .IsUnique();
+
+                entity.HasIndex(x => x.Login)
+                    .IsUnique();
+
+                entity.HasIndex(x => new {x.Login, x.SecretKey}); // it's used for authorization
             });
 
             builder.Entity<MessageEntity>(entity =>

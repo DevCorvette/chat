@@ -20,6 +20,21 @@ namespace Corvette.Chat.Data.Entities
         public string Name { get; set; } = null!;
         
         /// <summary>
+        /// User login.
+        /// It's unique and used for authorization.
+        /// The maximum name length is 200 chars. 
+        /// </summary>
+        [Required]
+        [StringLength(200)]
+        public string Login { get; set; }
+        
+        /// <summary>
+        /// A secret key for authorization.
+        /// </summary>
+        [Required]
+        public string SecretKey { get; set; }
+        
+        /// <summary>
         /// Messages which the user sent to chats.
         /// </summary>
         public ICollection<MessageEntity>? Messages { get; set; }

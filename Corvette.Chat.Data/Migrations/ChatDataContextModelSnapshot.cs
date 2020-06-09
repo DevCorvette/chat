@@ -116,15 +116,29 @@ namespace Corvette.Chat.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasColumnType("character varying(200)")
+                        .HasMaxLength(200);
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("character varying(200)")
                         .HasMaxLength(200);
 
+                    b.Property<string>("SecretKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Login")
+                        .IsUnique();
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("Login", "SecretKey");
 
                     b.ToTable("Users");
                 });

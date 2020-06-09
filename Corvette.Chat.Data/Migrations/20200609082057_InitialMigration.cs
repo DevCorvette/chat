@@ -13,7 +13,9 @@ namespace Corvette.Chat.Data.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     Created = table.Column<DateTime>(nullable: false),
-                    Name = table.Column<string>(maxLength: 200, nullable: false)
+                    Name = table.Column<string>(maxLength: 200, nullable: false),
+                    Login = table.Column<string>(maxLength: 200, nullable: false),
+                    SecretKey = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -122,10 +124,21 @@ namespace Corvette.Chat.Data.Migrations
                 column: "ChatId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Users_Login",
+                table: "Users",
+                column: "Login",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_Name",
                 table: "Users",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Login_SecretKey",
+                table: "Users",
+                columns: new[] { "Login", "SecretKey" });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
