@@ -24,7 +24,6 @@ namespace Corvette.Chat.Services
         /// </summary>
         /// <param name="creator">Chat's creator</param>
         /// <param name="interlocutorId">Interlocutor id</param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="EntityNotFoundException"></exception>
         Task<ChatModel> CreatePrivateChatAsync(UserModel creator, Guid interlocutorId);
@@ -39,7 +38,6 @@ namespace Corvette.Chat.Services
         /// <summary>
         /// Returns chat by id for the user.
         /// </summary>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="EntityNotFoundException"></exception>
         Task<ChatModel> GetChatAsync(UserModel user, Guid chatId);
 
@@ -49,7 +47,7 @@ namespace Corvette.Chat.Services
         /// <param name="owner">Chat's owner</param>
         /// <param name="chatId">Chat id</param>
         /// <param name="name">New chat name</param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ForbiddenException">When action user isn't a chat owner.</exception>
         /// <exception cref="EntityNotFoundException"></exception>
         /// <exception cref="ChatServiceException"></exception>
@@ -62,7 +60,7 @@ namespace Corvette.Chat.Services
         /// <param name="owner">Chat's owner</param>
         /// <param name="chatId">Chat id</param>
         /// <param name="newOwnerId"></param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ForbiddenException">When action user isn't a chat owner.</exception>
         /// <exception cref="EntityNotFoundException"></exception>
         Task ChangeOwnerAsync(UserModel owner, Guid chatId, Guid newOwnerId);
@@ -72,7 +70,7 @@ namespace Corvette.Chat.Services
         /// </summary>
         /// <param name="owner">Chat's owner</param>
         /// <param name="chatId">Chat id</param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ForbiddenException">When action user isn't a chat owner.</exception>
         /// <exception cref="ChatServiceException">When action user isn't a chat owner.</exception>
         Task RemovePublicAsync(UserModel owner, Guid chatId);

@@ -49,18 +49,17 @@ namespace Corvette.Chat.Services.Impl
             // get
             return await context.ChatUsers
                 .Where(x => x.ChatId == chatId)
-                .Select(x => new UserModel(x.User))
+                .Select(x => new UserModel(x.User!))
                 .ToListAsync();
         }
 
         /// <inheritdoc/>
         public async Task AddMembersAsync(UserModel owner, Guid chatId, IReadOnlyList<Guid> newMemberIds)
         {
-            await using var context = _contextFactory.CreateContext();
-            
-            // checks
             if (owner == null) throw new ArgumentNullException(nameof(owner));
             if (newMemberIds == null) throw new ArgumentNullException(nameof(newMemberIds));
+            
+            await using var context = _contextFactory.CreateContext();
             _logger.LogDebug($"{nameof(AddMembersAsync)} started by owner with id: {owner.Id} for chat with id: {chatId} and {newMemberIds.Count} new members");
 
             var chat = await context.Chats
@@ -105,8 +104,10 @@ namespace Corvette.Chat.Services.Impl
         /// <inheritdoc/>
         public async Task RemoveMembersAsync(UserModel owner, Guid chatId, IReadOnlyList<Guid> memberIds)
         {
-            await using var context = _contextFactory.CreateContext();
+            if (owner == null) throw new ArgumentNullException(nameof(owner));
+            if (memberIds == null) throw new ArgumentNullException(nameof(memberIds));
             
+            await using var context = _contextFactory.CreateContext();
             _logger.LogDebug($"{nameof(RemoveMembersAsync)} started by owner with id: {owner.Id} for chat with id: {chatId} and {memberIds.Count} new members");
 
             // checks
@@ -143,12 +144,12 @@ namespace Corvette.Chat.Services.Impl
         /// <inheritdoc/>
         public async Task LeaveChatAsync(UserModel user, Guid chatId)
         {
-            await using var context = _contextFactory.CreateContext();
-            
-            // checks
             if (user == null) throw new ArgumentNullException(nameof(user));
+
+            await using var context = _contextFactory.CreateContext();
             _logger.LogDebug($"{nameof(LeaveChatAsync)} started by user with id: {user.Id} for chat with id: {chatId}");
 
+            // check
             var chatUser = await context.ChatUsers
                            .Where(x => x.UserId == user.Id)
                            .Where(x => x.ChatId == chatId)

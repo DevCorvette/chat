@@ -32,13 +32,14 @@ namespace Corvette.Chat.Services.Impl
         /// <inheritdoc/>
         public async Task<IReadOnlyList<MessageForRecipient>> AddMessageAsync(UserModel author, Guid chatId, string text)
         {
-            _logger.LogDebug($"{nameof(AddMessageAsync)} started by author id: {author.Id}, chatId: {chatId}, text: {text.Substring(0, 10)}...");
-            await using var context = _contextFactory.CreateContext();
-
-            // checks
             if (author == null) throw new ArgumentNullException(nameof(author));
             if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
             if (!text.HasValue()) throw new ArgumentNullException(nameof(text));
+            
+            await using var context = _contextFactory.CreateContext();
+            _logger.LogDebug($"{nameof(AddMessageAsync)} started by author id: {author.Id}, chatId: {chatId}, text: {text.Substring(0, 10)}...");
+
+            // check
             await _memberService.ThrowIfAccessDenied(context, author.Id, chatId);
 
             // add message
@@ -77,6 +78,7 @@ namespace Corvette.Chat.Services.Impl
             await using var context = _contextFactory.CreateContext();
 
             if (user == null) throw new ArgumentNullException(nameof(user));
+            if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
             if (take <= 0) throw new ArgumentOutOfRangeException(nameof(take));
             await _memberService.ThrowIfAccessDenied(context, user.Id, chatId);
 
@@ -97,14 +99,14 @@ namespace Corvette.Chat.Services.Impl
             // get read
             messages.AddRange(await query
                 .Where(x => x.Created > lastReadDate) // top half
-                .Select(x => new MessageModel(x, x.Author.Name))
+                .Select(x => new MessageModel(x, x.Author!.Name))
                 .Take(take/2) 
                 .ToListAsync());
             
             // get unred
             messages.AddRange(await query
                 .Where(x => x.Created < lastReadDate) // lower half
-                .Select(x => new MessageModel(x, x.Author.Name))
+                .Select(x => new MessageModel(x, x.Author!.Name))
                 .Take(take - messages.Count)
                 .ToListAsync());
 
@@ -117,6 +119,7 @@ namespace Corvette.Chat.Services.Impl
             await using var context = _contextFactory.CreateContext();
 
             if (user == null) throw new ArgumentNullException(nameof(user));
+            if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
             if (take <= 0) throw new ArgumentOutOfRangeException(nameof(take));
             await _memberService.ThrowIfAccessDenied(context, user.Id, chatId);
             
@@ -131,7 +134,7 @@ namespace Corvette.Chat.Services.Impl
                 : query.Where(x => x.Created < skip); // skip lower messages
 
             return await query
-                .Select(x => new MessageModel(x, x.Author.Name))
+                .Select(x => new MessageModel(x, x.Author!.Name))
                 .Take(take)
                 .ToListAsync();
         }

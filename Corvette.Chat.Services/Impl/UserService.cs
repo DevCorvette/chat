@@ -29,19 +29,24 @@ namespace Corvette.Chat.Services.Impl
 
 
         /// <inheritdoc/>
-        public async Task<UserModel> CreateUserAsync(string name)
+        public async Task<UserModel> CreateUserAsync(string name, string login, string secretKey)
         {
-            _logger.LogDebug($"{nameof(CreateUserAsync)} started for new user name: {name}.");
+            _logger.LogDebug($"{nameof(CreateUserAsync)} started for new user name: {name}, login: {login}.");
             await using var context = _contextFactory.CreateContext();
 
             // checks
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentOutOfRangeException(nameof(name), "Can't be null or empty.");
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name), "Can't be null or empty.");
+            if (string.IsNullOrWhiteSpace(login)) throw new ArgumentNullException(nameof(login), "Can't be null or empty.");
+            if (string.IsNullOrWhiteSpace(secretKey)) throw new ArgumentNullException(nameof(secretKey), "Can't be null or empty.");
             if (await IsUserNameUsedAsync(context, name)) throw new ChatServiceException($"A user name: {name} is already used.");
+            if (await IsLoginUsedAsync(context, name)) throw new ChatServiceException($"A login: {login} is already used.");
             
             // create
             var user = new UserEntity
             {
-                Name = name,
+                Name = name.Trim(),
+                Login = login.Trim(),
+                SecretKey = secretKey,
             };
             context.Add(user);
             await context.SaveChangesAsync();
@@ -51,36 +56,51 @@ namespace Corvette.Chat.Services.Impl
         }
 
         /// <inheritdoc/>
-        public async Task UpdateUserNameAsync(Guid userId, string name)
+        public async Task UpdateUserAsync(Guid userId, string? name, string? login, string? secretKey)
         {
-            _logger.LogDebug($"{nameof(UpdateUserNameAsync)} started for user with id: {userId} new name: {name}.");
+            _logger.LogDebug($"{nameof(UpdateUserAsync)} started for user with id: {userId} new name: {name}.");
             await using var context = _contextFactory.CreateContext();
-
-            // checks
-            if (userId == default) throw new ArgumentOutOfRangeException(nameof(userId), "Can't be default.");
-            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentOutOfRangeException(nameof(name), "Can't be null or empty.");
-            if (await IsUserNameUsedAsync(context, name, userId)) throw new ChatServiceException($"A user name: {name} is already used.");
 
             // get
             var user = await context.Users
                            .Where(x => x.Id == userId)
                            .SingleOrDefaultAsync()
                        ?? throw new EntityNotFoundException($"User by id: {userId} was not found");
-            
+
             // update
-            user.Name = name;
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                if (await IsUserNameUsedAsync(context, name, userId)) 
+                    throw new ChatServiceException($"A user name: {name} is already used.");
+                
+                user.Name = name.Trim();
+                _logger.LogInformation($"{nameof(UpdateUserAsync)} updated username: {user.Name} for user with id: {user.Id}.");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(login))
+            {
+                if (await IsLoginUsedAsync(context, login, userId))
+                    throw new ChatServiceException($"A login: {login} is already used.");
+
+                user.Login = login.Trim();
+                _logger.LogInformation($"{nameof(UpdateUserAsync)} updated login: {user.Login} for user with id: {user.Id}.");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(secretKey))
+            {
+                user.SecretKey = secretKey;
+                _logger.LogInformation($"{nameof(UpdateUserAsync)} updated secret key: {user.SecretKey} for user with id: {user.Id}.");
+            }           
+            
             await context.SaveChangesAsync();
             
-            _logger.LogInformation($"{nameof(UpdateUserNameAsync)} successfully updated username: {user.Name} for user with id: {user.Id}.");
+            _logger.LogDebug($"{nameof(UpdateUserAsync)} successfully finished.");
         }
 
         /// <inheritdoc/>
         public async Task<UserModel> GetUserAsync(Guid id)
         {
             await using var context = _contextFactory.CreateContext();
-
-            // check
-            if (id == default) throw new ArgumentOutOfRangeException(nameof(id), "Can't be default.");
 
             // get
             var user = await context.Users
@@ -96,7 +116,7 @@ namespace Corvette.Chat.Services.Impl
             await using var context = _contextFactory.CreateContext();
 
             var users = await context.Users
-                .Where(x => !search.HasValue()
+                .Where(x => search == null
                             || x.Name.ToLower().Contains(search.ToLower()))
                 .ToListAsync();
 
@@ -138,15 +158,34 @@ namespace Corvette.Chat.Services.Impl
             await using var context = _contextFactory.CreateContext();
 
             if (string.IsNullOrWhiteSpace(username)) 
-                throw new ArgumentOutOfRangeException(nameof(username), "Can't be null or empty.");
+                throw new ArgumentNullException(nameof(username), "Can't be null or empty.");
             
             return await IsUserNameUsedAsync(context, username);
+        }
+        
+        /// <inheritdoc/>
+        public async Task<bool> IsLoginUsedAsync(string login)
+        {
+            await using var context = _contextFactory.CreateContext();
+
+            if (string.IsNullOrWhiteSpace(login)) 
+                throw new ArgumentNullException(nameof(login), "Can't be null or empty.");
+            
+            return await IsUserNameUsedAsync(context, login);
         }
 
         private async Task<bool> IsUserNameUsedAsync(ChatDataContext context, string username, Guid? userId = null)
         {
             return await context.Users
-                .Where(x => x.Name.Equals(username.Trim(), StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.Name.Trim().ToLower() == username.Trim().ToLower())
+                .Where(x => userId == null || x.Id != userId)
+                .AnyAsync();
+        }
+        
+        private async Task<bool> IsLoginUsedAsync(ChatDataContext context, string login, Guid? userId = null)
+        {
+            return await context.Users
+                .Where(x => x.Login.Trim().ToLower() == login.Trim().ToLower())
                 .Where(x => userId == null || x.Id != userId)
                 .AnyAsync();
         }

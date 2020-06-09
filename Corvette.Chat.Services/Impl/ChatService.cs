@@ -30,12 +30,11 @@ namespace Corvette.Chat.Services.Impl
         /// <inheritdoc/>
         public async Task<ChatModel> CreatePublicChatAsync(UserModel creator, string name)
         {
-            _logger.LogDebug($"{nameof(CreatePublicChatAsync)} started by creator with id: {creator.Id}, chat name: {name}");
-            await using var context = _contextFactory.CreateContext();
-
-            // checks
             if (creator == null) throw new ArgumentNullException(nameof(creator));
             if (!name.HasValue()) throw new ArgumentNullException(nameof(name), "Can't be empty or null for public chat.");
+            
+            _logger.LogDebug($"{nameof(CreatePublicChatAsync)} started by creator with id: {creator.Id}, chat name: {name}");
+            await using var context = _contextFactory.CreateContext();
 
             // create
             var chat = new ChatEntity
@@ -58,18 +57,17 @@ namespace Corvette.Chat.Services.Impl
         /// <inheritdoc/>
         public async Task<ChatModel> CreatePrivateChatAsync(UserModel creator, Guid interlocutorId)
         {
+            if (creator == null) throw new ArgumentNullException(nameof(creator));
+            
             _logger.LogDebug($"{nameof(CreatePrivateChatAsync)} started by creator with id: {creator.Id}, {nameof(interlocutorId)}: {interlocutorId}");
             await using var context = _contextFactory.CreateContext();
 
-            // checks
-            if (creator == null) throw new ArgumentNullException(nameof(creator));
-            if (interlocutorId == default) throw new ArgumentOutOfRangeException(nameof(interlocutorId));
-
+            // check
             var interlocutorName = await context.Users
                                        .Where(x => x.Id == interlocutorId)
                                        .Select(x => x.Name)
                                        .SingleOrDefaultAsync()
-                                   ?? throw new EntityNotFoundException($"Interlocutor by id: {interlocutorId} was not found.");
+                                   ?? throw new EntityNotFoundException($"Interlocutor with id: {interlocutorId} was not found.");
 
             // create
             var chat = new ChatEntity
@@ -98,9 +96,9 @@ namespace Corvette.Chat.Services.Impl
             if (userId == default) throw new ArgumentOutOfRangeException(nameof(userId));
 
             // get all user's chat
-            var allChats =await context.ChatUsers
+            var allChats = await context.ChatUsers
                 .Where(x => x.UserId == userId)
-                .Select(x => x.Chat)
+                .Select(x => x.Chat!)
                 .ToListAsync();
             
             // early exit
@@ -117,7 +115,7 @@ namespace Corvette.Chat.Services.Impl
                 .Where(x => x.UserId != userId)
                 .ToDictionaryAsync(
                     x => x.ChatId,
-                    x => x.User.Name);
+                    x => x.User!.Name);
             
             // get last messages
             var messagesDic = await (from cu in context.ChatUsers
@@ -141,7 +139,7 @@ namespace Corvette.Chat.Services.Impl
             // convert
             var models = allChats.ConvertAll(x => new ChatModel(
                 x,
-                x.IsPrivate ? privateNames[x.Id] : x.Name,
+                x.IsPrivate ? privateNames[x.Id] : x.Name!,
                 new MessageModel(messagesDic[x.Id]),
                 countDic[x.Id]));
             
@@ -151,38 +149,36 @@ namespace Corvette.Chat.Services.Impl
         /// <inheritdoc/>
         public async Task<ChatModel> GetChatAsync(UserModel user, Guid chatId)
         {
-            await using var context = _contextFactory.CreateContext();
-            
-            // check
-            if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
             if (user == null) throw new ArgumentNullException(nameof(user));
-            
-            // chat
+
+            await using var context = _contextFactory.CreateContext();
+
+            // get chat
             var chat = await context.Chats
                            .Where(x => x.Id == chatId)
                            .SingleOrDefaultAsync()
-                       ?? throw new EntityNotFoundException($"Chat by id: {chatId} was not found.");
+                       ?? throw new EntityNotFoundException($"Chat with id: {chatId} was not found.");
 
-            // name
+            // get name
             var chatName = chat.Name;
             if (chat.IsPrivate)
             {
                 chatName = await context.ChatUsers
                                .Where(x => x.ChatId == chatId)
                                .Where(x => x.UserId != user.Id)
-                               .Select(x => x.User.Name)
+                               .Select(x => x.User!.Name)
                                .SingleOrDefaultAsync()
                            ?? throw new EntityNotFoundException($"Can't find interlocutor in private chat: {chatId}");
             }
             
-            // message
+            // get last message
             var message = await context.Messages
                 .Where(x => x.ChatId == chatId)
                 .OrderByDescending(x => x.Created)
                 .Include(x => x.Author)
                 .FirstOrDefaultAsync();
 
-            // unread
+            // count unread
             var count = 0;
             if (message != null)
             {
@@ -197,7 +193,7 @@ namespace Corvette.Chat.Services.Impl
             // result
             return new ChatModel(
                 chat, 
-                chatName, 
+                chatName!, 
                 message != null ? new MessageModel(message) : null,
                 count);
         }
@@ -205,17 +201,16 @@ namespace Corvette.Chat.Services.Impl
         /// <inheritdoc/>
         public async Task RenameChatAsync(UserModel owner, Guid chatId, string name)
         {
+            if (owner == null) throw new ArgumentNullException(nameof(owner));
+            if (!name.HasValue()) throw new ArgumentNullException(nameof(name));
+            
             _logger.LogDebug($"{nameof(RenameChatAsync)} started by user with id: {owner.Id} for chatId: {chatId}, name: {name}");
             await using var context = _contextFactory.CreateContext();
 
-            // check
-            if (owner == null) throw new ArgumentNullException(nameof(owner));
-            if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
-            if (!name.HasValue()) throw new ArgumentOutOfRangeException(nameof(name));
-            
+            // checks
             var chat = await context.Chats
                            .SingleOrDefaultAsync(x => x.Id == chatId)
-                       ?? throw new EntityNotFoundException($"Chat by id: {chatId} was not found.");
+                       ?? throw new EntityNotFoundException($"Chat with id: {chatId} was not found.");
             
             if (chat.OwnerId != owner.Id) throw new ForbiddenException("Can't update the chat because the current user is not the owner.");
             if (chat.IsPrivate) throw new ChatServiceException("Can't change chat name because private chat doesn't have name.");
@@ -230,21 +225,19 @@ namespace Corvette.Chat.Services.Impl
         /// <inheritdoc/>
         public async Task ChangeOwnerAsync(UserModel owner, Guid chatId, Guid newOwnerId)
         {
+            if (owner == null) throw new ArgumentNullException(nameof(owner));
+            
             _logger.LogDebug($"{nameof(ChangeOwnerAsync)} started by user with id: {owner.Id} for chat id: {chatId}, newOwnerId: {newOwnerId}");
             await using var context = _contextFactory.CreateContext();
-
-            // checks
-            if (owner == null) throw new ArgumentNullException(nameof(owner));
-            if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
-            if (newOwnerId == default) throw new ArgumentOutOfRangeException(nameof(newOwnerId));
             
+            // check new owner
             if (!await context.Users.AnyAsync(x => x.Id == newOwnerId))
-                throw new EntityNotFoundException($"User by id: {newOwnerId} was not found.");
+                throw new EntityNotFoundException($"User with id: {newOwnerId} was not found.");
             
             // check chat
             var chat = await context.Chats
                            .SingleOrDefaultAsync(x => x.Id == chatId)
-                       ?? throw new EntityNotFoundException($"Chat by id: {chatId} was not found.");
+                       ?? throw new EntityNotFoundException($"Chat with id: {chatId} was not found.");
 
             if (chat.OwnerId != owner.Id) throw new ForbiddenException("Can't update the chat because the current user is not the owner.");
             if (chat.IsPrivate) throw new ChatServiceException("Can't change private chat's owner.");
@@ -264,11 +257,10 @@ namespace Corvette.Chat.Services.Impl
 
             // checks
             if (owner == null) throw new ArgumentNullException(nameof(owner));
-            if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
             
             var chat = await context.Chats
                            .SingleOrDefaultAsync(x => x.Id == chatId)
-                       ?? throw new EntityNotFoundException($"Chat by id: {chatId} was not found.");
+                       ?? throw new EntityNotFoundException($"Chat with id: {chatId} was not found.");
             
             if (chat.OwnerId != owner.Id) throw new ForbiddenException("Can't remove the chat because the current user is not the owner.");
             if (chat.IsPrivate) throw new ChatServiceException("Can't remove private chat.");

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Corvette.Chat.Data.Entities;
 using Corvette.Chat.Services;
@@ -30,14 +31,24 @@ namespace Corvette.Chat.Tests.Services.Impl
         public async Task CreateAsync_CreateUser_CorrectUser()
         {
             // arrange
-            var userName = "Test User";
+            const string userName = "Test User";
+            const string login = "Login";
+            const string key = "key";
 
             // act
-            var user = await _service.CreateUserAsync(userName);
+            var user = await _service.CreateUserAsync(userName, login, key);
 
             // assert
+            var entity = await CreateContext().Users
+                .Where(x => x.Id == user.Id)
+                .SingleOrDefaultAsync();
+            
+            Check.That(user).IsNotNull();
             Check.That(user.Id).Not.Equals(default(Guid));
             Check.That(user.Name).Equals(userName);
+            Check.That(entity).IsNotNull();
+            Check.That(entity.Login).Equals(login);
+            Check.That(entity.SecretKey).Equals(key);
         }
 
         /// <summary>
@@ -56,7 +67,7 @@ namespace Corvette.Chat.Tests.Services.Impl
 
             // act & assert
             Check
-                .ThatAsyncCode(async() => await _service.CreateUserAsync(" existed user "))
+                .ThatAsyncCode(async() => await _service.CreateUserAsync(" existed user ", "login", "key"))
                 .Throws<ChatServiceException>();
         }
 
@@ -71,14 +82,18 @@ namespace Corvette.Chat.Tests.Services.Impl
             var user = new UserEntity
             {
                 Name = "Existed User",
+                Login = "login",
+                SecretKey = "key",
             };
             context.Add(user);
             await context.SaveChangesAsync();
 
             const string newName = "New Name";
+            const string newLogin = "NewLogin";
+            const string newKey = "NewKey";
             
             // act
-            await _service.UpdateUserNameAsync(user.Id, newName);
+            await _service.UpdateUserAsync(user.Id, newName, newLogin, newKey);
 
             // assert
             var updatedUser = await CreateContext().Users
@@ -86,6 +101,8 @@ namespace Corvette.Chat.Tests.Services.Impl
 
             Check.That(updatedUser).IsNotNull();
             Check.That(updatedUser!.Name).Equals(newName);
+            Check.That(updatedUser!.Login).Equals(newLogin);
+            Check.That(updatedUser!.SecretKey).Equals(newKey);
         }
 
         /// <summary>
@@ -99,6 +116,8 @@ namespace Corvette.Chat.Tests.Services.Impl
             var user = new UserEntity
             {
                 Name = "Existed User",
+                Login = "login",
+                SecretKey = "key",
             };
             context.Add(user);
             await context.SaveChangesAsync();

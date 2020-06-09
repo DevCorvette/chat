@@ -26,13 +26,13 @@ namespace Corvette.Chat.Data.Entities
         /// </summary>
         [Required]
         [StringLength(200)]
-        public string Login { get; set; }
+        public string Login { get; set; } = null!;
         
         /// <summary>
         /// A secret key for authorization.
         /// </summary>
         [Required]
-        public string SecretKey { get; set; }
+        public string SecretKey { get; set; } = null!;
         
         /// <summary>
         /// Messages which the user sent to chats.
