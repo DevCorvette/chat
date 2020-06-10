@@ -46,6 +46,9 @@ namespace Corvette.Chat.Data
         {
             builder.Entity<UserEntity>(entity =>
             {
+                entity.Property(e => e.Created)
+                    .HasDefaultValueSql("timezone('UTC'::text, now())"); // postgres function
+                
                 entity.HasIndex(x => x.Name)
                     .IsUnique();
 
@@ -57,6 +60,9 @@ namespace Corvette.Chat.Data
 
             builder.Entity<MessageEntity>(entity =>
             {
+                entity.Property(e => e.Created)
+                    .HasDefaultValueSql("timezone('UTC'::text, now())"); // postgres function
+                
                 entity.HasOne(x => x.Author)
                     .WithMany(x => x!.Messages)
                     .HasForeignKey(x => x.AuthorId)
@@ -70,6 +76,9 @@ namespace Corvette.Chat.Data
             
             builder.Entity<MemberEntity>(entity =>
             {
+                entity.Property(e => e.Created)
+                    .HasDefaultValueSql("timezone('UTC'::text, now())"); // postgres function
+                
                 entity.HasOne(x => x.User)
                     .WithMany(x => x!.ChatUsers)
                     .HasForeignKey(x => x.UserId)
@@ -86,6 +95,9 @@ namespace Corvette.Chat.Data
 
             builder.Entity<ChatEntity>(entity =>
             {
+                entity.Property(e => e.Created)
+                    .HasDefaultValueSql("timezone('UTC'::text, now())"); // postgres function
+                
                 entity.HasOne(x => x.Owner)
                     .WithMany(x => x!.OwnChats)
                     .HasForeignKey(x => x.OwnerId)

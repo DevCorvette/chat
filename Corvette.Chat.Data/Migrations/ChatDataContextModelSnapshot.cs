@@ -27,7 +27,8 @@ namespace Corvette.Chat.Data.Migrations
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("timezone('UTC'::text, now())");
 
                     b.Property<bool>("IsPrivate")
                         .HasColumnType("boolean");
@@ -57,7 +58,8 @@ namespace Corvette.Chat.Data.Migrations
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("timezone('UTC'::text, now())");
 
                     b.Property<DateTime>("LastReadDate")
                         .ValueGeneratedOnAdd()
@@ -90,7 +92,8 @@ namespace Corvette.Chat.Data.Migrations
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("timezone('UTC'::text, now())");
 
                     b.Property<string>("Text")
                         .IsRequired()
@@ -114,7 +117,8 @@ namespace Corvette.Chat.Data.Migrations
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("timezone('UTC'::text, now())");
 
                     b.Property<string>("Login")
                         .IsRequired()

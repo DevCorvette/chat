@@ -12,7 +12,7 @@ namespace Corvette.Chat.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Created = table.Column<DateTime>(nullable: false),
+                    Created = table.Column<DateTime>(nullable: false, defaultValueSql: "timezone('UTC'::text, now())"),
                     Name = table.Column<string>(maxLength: 200, nullable: false),
                     Login = table.Column<string>(maxLength: 200, nullable: false),
                     SecretKey = table.Column<string>(nullable: false)
@@ -27,7 +27,7 @@ namespace Corvette.Chat.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Created = table.Column<DateTime>(nullable: false),
+                    Created = table.Column<DateTime>(nullable: false, defaultValueSql: "timezone('UTC'::text, now())"),
                     IsPrivate = table.Column<bool>(nullable: false),
                     Name = table.Column<string>(maxLength: 200, nullable: true),
                     OwnerId = table.Column<Guid>(nullable: false)
@@ -48,7 +48,7 @@ namespace Corvette.Chat.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Created = table.Column<DateTime>(nullable: false),
+                    Created = table.Column<DateTime>(nullable: false, defaultValueSql: "timezone('UTC'::text, now())"),
                     UserId = table.Column<Guid>(nullable: false),
                     ChatId = table.Column<Guid>(nullable: false),
                     LastReadDate = table.Column<DateTime>(nullable: false)
@@ -75,7 +75,7 @@ namespace Corvette.Chat.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Created = table.Column<DateTime>(nullable: false),
+                    Created = table.Column<DateTime>(nullable: false, defaultValueSql: "timezone('UTC'::text, now())"),
                     Text = table.Column<string>(maxLength: 3000, nullable: false),
                     AuthorId = table.Column<Guid>(nullable: false),
                     ChatId = table.Column<Guid>(nullable: false)
