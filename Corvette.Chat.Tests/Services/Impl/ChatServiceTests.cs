@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Corvette.Chat.Data.Entities;
-using Corvette.Chat.Services;
-using Corvette.Chat.Services.Impl;
-using Corvette.Chat.Services.Models;
+using Corvette.Chat.Logic;
+using Corvette.Chat.Logic.Impl;
+using Corvette.Chat.Logic.Models;
 using Microsoft.Extensions.DependencyInjection;
 using NFluent;
 using Xunit;

@@ -2,9 +2,11 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corvette.Chat.Data", "Corvette.Chat.Data\Corvette.Chat.Data.csproj", "{DCD0EC67-2F5A-46DE-BDDE-6DDDAD339EE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corvette.Chat.Services", "Corvette.Chat.Services\Corvette.Chat.Services.csproj", "{FE461AD3-1D24-4AEB-820D-C8B20A7691E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corvette.Chat.Logic", "Corvette.Chat.Logic\Corvette.Chat.Logic.csproj", "{FE461AD3-1D24-4AEB-820D-C8B20A7691E1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corvette.Chat.Tests", "Corvette.Chat.Tests\Corvette.Chat.Tests.csproj", "{7231A8FE-B93A-464A-B494-C6D16AD481C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corvette.Chat.WebService", "Corvette.Chat.WebService\Corvette.Chat.WebService.csproj", "{B3432292-F9AB-4DF4-BBA3-0DAFC9E3B3A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +26,9 @@ Global
 		{7231A8FE-B93A-464A-B494-C6D16AD481C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7231A8FE-B93A-464A-B494-C6D16AD481C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7231A8FE-B93A-464A-B494-C6D16AD481C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3432292-F9AB-4DF4-BBA3-0DAFC9E3B3A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3432292-F9AB-4DF4-BBA3-0DAFC9E3B3A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3432292-F9AB-4DF4-BBA3-0DAFC9E3B3A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3432292-F9AB-4DF4-BBA3-0DAFC9E3B3A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

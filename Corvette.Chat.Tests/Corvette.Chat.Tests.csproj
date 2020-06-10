@@ -21,7 +21,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Corvette.Chat.Data\Corvette.Chat.Data.csproj" />
-      <ProjectReference Include="..\Corvette.Chat.Services\Corvette.Chat.Services.csproj" />
+      <ProjectReference Include="..\Corvette.Chat.Logic\Corvette.Chat.Logic.csproj" />
     </ItemGroup>
 
 </Project>

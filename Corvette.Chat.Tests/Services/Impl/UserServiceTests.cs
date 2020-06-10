@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Corvette.Chat.Data.Entities;
-using Corvette.Chat.Services;
-using Corvette.Chat.Services.Exceptions;
-using Corvette.Chat.Services.Impl;
+using Corvette.Chat.Logic;
+using Corvette.Chat.Logic.Exceptions;
+using Corvette.Chat.Logic.Impl;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NFluent;
