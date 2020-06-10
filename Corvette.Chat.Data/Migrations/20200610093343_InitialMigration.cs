@@ -44,7 +44,7 @@ namespace Corvette.Chat.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChatUsers",
+                name: "Members",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
@@ -55,15 +55,15 @@ namespace Corvette.Chat.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChatUsers", x => x.Id);
+                    table.PrimaryKey("PK_Members", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ChatUsers_Chats_ChatId",
+                        name: "FK_Members_Chats_ChatId",
                         column: x => x.ChatId,
                         principalTable: "Chats",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ChatUsers_Users_UserId",
+                        name: "FK_Members_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -103,13 +103,13 @@ namespace Corvette.Chat.Data.Migrations
                 column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatUsers_UserId",
-                table: "ChatUsers",
+                name: "IX_Members_UserId",
+                table: "Members",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatUsers_ChatId_UserId",
-                table: "ChatUsers",
+                name: "IX_Members_ChatId_UserId",
+                table: "Members",
                 columns: new[] { "ChatId", "UserId" },
                 unique: true);
 
@@ -144,7 +144,7 @@ namespace Corvette.Chat.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ChatUsers");
+                name: "Members");
 
             migrationBuilder.DropTable(
                 name: "Messages");

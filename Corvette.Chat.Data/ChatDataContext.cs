@@ -39,7 +39,7 @@ namespace Corvette.Chat.Data
         
         public virtual DbSet<MessageEntity> Messages { get; set; } = null!;
         
-        public virtual DbSet<ChatUserEntity> ChatUsers { get; set; } = null!;
+        public virtual DbSet<MemberEntity> ChatUsers { get; set; } = null!;
 
         
         protected override void OnModelCreating(ModelBuilder builder)
@@ -68,7 +68,7 @@ namespace Corvette.Chat.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
             
-            builder.Entity<ChatUserEntity>(entity =>
+            builder.Entity<MemberEntity>(entity =>
             {
                 entity.HasOne(x => x.User)
                     .WithMany(x => x!.ChatUsers)

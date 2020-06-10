@@ -88,7 +88,7 @@ namespace Corvette.Chat.Logic.Impl
                 
                 if (!isAdded)
                 {
-                    context.Add(new ChatUserEntity
+                    context.Add(new MemberEntity
                     {
                         UserId = userId,
                         ChatId = chatId,

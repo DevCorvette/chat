@@ -6,8 +6,8 @@ namespace Corvette.Chat.Data.Entities
     /// <summary>
     /// Relation between chat and user.
     /// </summary>
-    [Table("ChatUsers")]
-    public sealed class ChatUserEntity : BaseEntity
+    [Table("Members")]
+    public sealed class MemberEntity : BaseEntity
     {
         /// <summary>
         /// User id.

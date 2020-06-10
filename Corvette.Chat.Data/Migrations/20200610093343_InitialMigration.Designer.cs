@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Corvette.Chat.Data.Migrations
 {
     [DbContext(typeof(ChatDataContext))]
-    [Migration("20200609082057_InitialMigration")]
+    [Migration("20200610093343_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,7 +48,7 @@ namespace Corvette.Chat.Data.Migrations
                     b.ToTable("Chats");
                 });
 
-            modelBuilder.Entity("Corvette.Chat.Data.Entities.ChatUserEntity", b =>
+            modelBuilder.Entity("Corvette.Chat.Data.Entities.MemberEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -75,7 +75,7 @@ namespace Corvette.Chat.Data.Migrations
                     b.HasIndex("ChatId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("ChatUsers");
+                    b.ToTable("Members");
                 });
 
             modelBuilder.Entity("Corvette.Chat.Data.Entities.MessageEntity", b =>
@@ -154,7 +154,7 @@ namespace Corvette.Chat.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Corvette.Chat.Data.Entities.ChatUserEntity", b =>
+            modelBuilder.Entity("Corvette.Chat.Data.Entities.MemberEntity", b =>
                 {
                     b.HasOne("Corvette.Chat.Data.Entities.ChatEntity", "Chat")
                         .WithMany("ChatUsers")

@@ -42,7 +42,7 @@ namespace Corvette.Chat.Data.Entities
         /// <summary>
         /// Collection from which we can get user chats.
         /// </summary>
-        public ICollection<ChatUserEntity>? ChatUsers { get; set; }
+        public ICollection<MemberEntity>? ChatUsers { get; set; }
         
         /// <summary>
         /// User owned chats.

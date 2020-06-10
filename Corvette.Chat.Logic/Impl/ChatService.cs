@@ -74,7 +74,7 @@ namespace Corvette.Chat.Logic.Impl
             {
                 OwnerId = creator.Id,
                 IsPrivate = true,
-                ChatUsers = new List<ChatUserEntity> {new ChatUserEntity {UserId = interlocutorId}},
+                ChatUsers = new List<MemberEntity> {new MemberEntity {UserId = interlocutorId}},
             };
 
             context.Add(chat);

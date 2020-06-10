@@ -46,7 +46,7 @@ namespace Corvette.Chat.Data.Migrations
                     b.ToTable("Chats");
                 });
 
-            modelBuilder.Entity("Corvette.Chat.Data.Entities.ChatUserEntity", b =>
+            modelBuilder.Entity("Corvette.Chat.Data.Entities.MemberEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -73,7 +73,7 @@ namespace Corvette.Chat.Data.Migrations
                     b.HasIndex("ChatId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("ChatUsers");
+                    b.ToTable("Members");
                 });
 
             modelBuilder.Entity("Corvette.Chat.Data.Entities.MessageEntity", b =>
@@ -152,7 +152,7 @@ namespace Corvette.Chat.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Corvette.Chat.Data.Entities.ChatUserEntity", b =>
+            modelBuilder.Entity("Corvette.Chat.Data.Entities.MemberEntity", b =>
                 {
                     b.HasOne("Corvette.Chat.Data.Entities.ChatEntity", "Chat")
                         .WithMany("ChatUsers")
