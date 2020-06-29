@@ -68,7 +68,7 @@ namespace Corvette.Chat.Tests.Services.Impl
             // act & assert
             Check
                 .ThatAsyncCode(async() => await _service.CreateUserAsync(" existed user ", "login", "key"))
-                .Throws<ChatServiceException>();
+                .Throws<ChatLogicException>();
         }
 
         /// <summary>

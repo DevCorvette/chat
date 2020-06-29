@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Corvette.Chat.Data;
 using Corvette.Chat.Logic.IoC;
 using Corvette.Chat.WebService.HostedServices;
+using Corvette.Chat.WebService.Middleware;
 using Corvette.Chat.WebService.Settings;
 using Corvette.Chat.WebService.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -119,6 +120,8 @@ namespace Corvette.Chat.WebService
             {
                 app.UseDeveloperExceptionPage();
             }
+            
+            app.UseMiddleware<ExceptionFilterMiddleware>();
             
             app.UseCors("CorsPolicy");
 

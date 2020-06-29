@@ -28,7 +28,7 @@ namespace Corvette.Chat.Logic
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ForbiddenException"></exception>
         /// <exception cref="EntityNotFoundException"></exception>
-        /// <exception cref="ChatServiceException"></exception>
+        /// <exception cref="ChatLogicException"></exception>
         Task AddMembersAsync(UserModel owner, Guid chatId, IReadOnlyList<Guid> newMemberIds);
         
         /// <summary>
@@ -37,7 +37,7 @@ namespace Corvette.Chat.Logic
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ForbiddenException"></exception>
         /// <exception cref="EntityNotFoundException"></exception>
-        /// <exception cref="ChatServiceException"></exception>
+        /// <exception cref="ChatLogicException"></exception>
         Task RemoveMembersAsync(UserModel owner, Guid chatId, IReadOnlyList<Guid> memberIds);
 
         /// <summary>

@@ -18,7 +18,7 @@ namespace Corvette.Chat.Logic
         /// <param name="login">Unique user login that is used for user identity</param>
         /// <param name="secretKey">A key that is used for user identity</param>
         /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ChatServiceException"></exception>
+        /// <exception cref="ChatLogicException"></exception>
         Task<UserModel> CreateUserAsync(string name, string login, string secretKey);
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Corvette.Chat.Logic
         /// <param name="name">User's new name</param>
         /// <param name="login"></param>
         /// <param name="secretKey"></param>
-        /// <exception cref="ChatServiceException"></exception>
+        /// <exception cref="ChatLogicException"></exception>
         /// <exception cref="EntityNotFoundException"></exception>
         Task UpdateUserAsync(Guid userId, string? name, string? login, string? secretKey);
         

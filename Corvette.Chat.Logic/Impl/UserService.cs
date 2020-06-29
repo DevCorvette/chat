@@ -155,7 +155,7 @@ namespace Corvette.Chat.Logic.Impl
                            ?? throw new EntityNotFoundException($"User by id: {userId} was not found.");
                
                 if (user.OwnChats?.Count != 0)
-                    throw new ChatServiceException($"Can't remove a user with id: {userId} because he owns some chats.");
+                    throw new ChatLogicException($"Can't remove a user with id: {userId} because he owns some chats.");
                 
                 // remove
                 context.Users.Remove(user);

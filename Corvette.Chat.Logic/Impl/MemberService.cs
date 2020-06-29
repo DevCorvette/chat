@@ -67,7 +67,7 @@ namespace Corvette.Chat.Logic.Impl
                        ?? throw new EntityNotFoundException($"Chat by id: {chatId} was not found.");
             
             if (chat.OwnerId != owner.Id) throw new ForbiddenException("Can't add members to the chat because the current user is not the owner.");
-            if (chat.IsPrivate) throw new ChatServiceException("Can't add members to the chat because private chat can has only 2 members.");
+            if (chat.IsPrivate) throw new ChatLogicException("Can't add members to the chat because private chat can has only 2 members.");
 
             // add
             var count = 0;
@@ -116,7 +116,7 @@ namespace Corvette.Chat.Logic.Impl
                        ?? throw new EntityNotFoundException($"Chat with id: {chatId} was not found.");
             
             if (chat.OwnerId != owner.Id) throw new ForbiddenException("Can't remove members from the chat because the current user is not the owner.");
-            if (chat.IsPrivate) throw new ChatServiceException("Can't remove members from the chat because private chat can has only 2 members.");
+            if (chat.IsPrivate) throw new ChatLogicException("Can't remove members from the chat because private chat can has only 2 members.");
 
             foreach (var memberId in memberIds)
             {

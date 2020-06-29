@@ -213,7 +213,7 @@ namespace Corvette.Chat.Logic.Impl
                        ?? throw new EntityNotFoundException($"Chat with id: {chatId} was not found.");
             
             if (chat.OwnerId != owner.Id) throw new ForbiddenException("Can't update the chat because the current user is not the owner.");
-            if (chat.IsPrivate) throw new ChatServiceException("Can't change chat name because private chat doesn't have name.");
+            if (chat.IsPrivate) throw new ChatLogicException("Can't change chat name because private chat doesn't have name.");
 
             // update
             chat.Name = name;
@@ -240,7 +240,7 @@ namespace Corvette.Chat.Logic.Impl
                        ?? throw new EntityNotFoundException($"Chat with id: {chatId} was not found.");
 
             if (chat.OwnerId != owner.Id) throw new ForbiddenException("Can't update the chat because the current user is not the owner.");
-            if (chat.IsPrivate) throw new ChatServiceException("Can't change private chat's owner.");
+            if (chat.IsPrivate) throw new ChatLogicException("Can't change private chat's owner.");
 
             // update
             chat.OwnerId = newOwnerId;
@@ -263,7 +263,7 @@ namespace Corvette.Chat.Logic.Impl
                        ?? throw new EntityNotFoundException($"Chat with id: {chatId} was not found.");
             
             if (chat.OwnerId != owner.Id) throw new ForbiddenException("Can't remove the chat because the current user is not the owner.");
-            if (chat.IsPrivate) throw new ChatServiceException("Can't remove private chat.");
+            if (chat.IsPrivate) throw new ChatLogicException("Can't remove private chat.");
 
             // remove
             context.Remove(chat);

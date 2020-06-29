@@ -50,7 +50,7 @@ namespace Corvette.Chat.Logic
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ForbiddenException">When action user isn't a chat owner.</exception>
         /// <exception cref="EntityNotFoundException"></exception>
-        /// <exception cref="ChatServiceException"></exception>
+        /// <exception cref="ChatLogicException"></exception>
         Task RenameChatAsync(UserModel owner, Guid chatId, string name);
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace Corvette.Chat.Logic
         /// <param name="chatId">Chat id</param>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ForbiddenException">When action user isn't a chat owner.</exception>
-        /// <exception cref="ChatServiceException">When action user isn't a chat owner.</exception>
+        /// <exception cref="ChatLogicException">When action user isn't a chat owner.</exception>
         Task RemovePublicAsync(UserModel owner, Guid chatId);
     }
 }
