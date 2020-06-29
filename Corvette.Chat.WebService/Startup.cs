@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Corvette.Chat.Data;
 using Corvette.Chat.Logic.IoC;
 using Corvette.Chat.WebService.HostedServices;
 using Corvette.Chat.WebService.Middleware;
@@ -8,7 +7,6 @@ using Corvette.Chat.WebService.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -112,7 +110,6 @@ namespace Corvette.Chat.WebService
                     }
                 };
             });
-            
         }
         
         
@@ -129,7 +126,8 @@ namespace Corvette.Chat.WebService
             app.UseCors("CorsPolicy");
 
             app.UseRouting();
-            
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseEndpoints(routes =>
             {
                 routes.MapControllerRoute(

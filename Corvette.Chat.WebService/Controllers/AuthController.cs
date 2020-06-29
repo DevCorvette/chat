@@ -6,13 +6,14 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Corvette.Chat.Logic;
 using Corvette.Chat.WebService.Models;
+using Corvette.Chat.WebService.Models.Auth;
 using Corvette.Chat.WebService.Settings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Corvette.Chat.WebService.Controllers
 {
-    [Route("[controller]")]
+    [Route("chat/[controller]")]
     [Produces("application/json")]
     public class AuthController : Controller
     {
@@ -36,12 +37,10 @@ namespace Corvette.Chat.WebService.Controllers
         /// Returns authorization token for user by user's login and secret key.
         /// </summary>
         [HttpPost]
-        public async Task<Response<string>> Auth(
-            [Required] [MinLength(1)] string login,
-            [Required] [MinLength(1)] string key)
+        public async Task<Response<string>> Auth([FromBody] AuthModel model)
         {
             // get and check user
-            var user = await _userService.GetUserAsync(login, key);
+            var user = await _userService.GetUserAsync(model.Login, model.Key);
             
             // generate token
             var claims = new List<Claim>
