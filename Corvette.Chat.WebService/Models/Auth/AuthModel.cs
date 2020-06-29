@@ -12,13 +12,13 @@ namespace Corvette.Chat.WebService.Models.Auth
         /// </summary>
         [Required]
         [MinLength(1)]
-        public string Login { get; set; }
+        public string Login { get; set; } = null!;
         
         /// <summary>
         /// User's secret key.
         /// </summary>
         [Required]
         [MinLength(1)]
-        public string Key { get; set; }
+        public string Key { get; set; } = null!;
     }
 }

@@ -37,8 +37,8 @@ namespace Corvette.Chat.Logic.Impl
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name), "Can't be null or empty.");
             if (string.IsNullOrWhiteSpace(login)) throw new ArgumentNullException(nameof(login), "Can't be null or empty.");
             if (string.IsNullOrWhiteSpace(secretKey)) throw new ArgumentNullException(nameof(secretKey), "Can't be null or empty.");
-            if (await IsUserNameUsedAsync(context, name)) throw new ChatServiceException($"A user name: {name} is already used.");
-            if (await IsLoginUsedAsync(context, name)) throw new ChatServiceException($"A login: {login} is already used.");
+            if (await IsUserNameUsedAsync(context, name)) throw new ChatLogicException($"A user name: \"{name}\" is already used.");
+            if (await IsLoginUsedAsync(context, name)) throw new ChatLogicException($"A login: \"{login}\" is already used.");
             
             // create
             var user = new UserEntity
@@ -67,25 +67,25 @@ namespace Corvette.Chat.Logic.Impl
                        ?? throw new EntityNotFoundException($"User by id: {userId} was not found");
 
             // update
-            if (!string.IsNullOrWhiteSpace(name))
+            if (!string.IsNullOrWhiteSpace(name) && user.Name != name)
             {
                 if (await IsUserNameUsedAsync(context, name, userId)) 
-                    throw new ChatServiceException($"A user name: {name} is already used.");
+                    throw new ChatLogicException($"A user name: {name} is already used.");
                 
                 user.Name = name.Trim();
                 _logger.LogInformation($"{nameof(UpdateUserAsync)} updated username: {user.Name} for user with id: {user.Id}.");
             }
             
-            if (!string.IsNullOrWhiteSpace(login))
+            if (!string.IsNullOrWhiteSpace(login) && user.Login != login)
             {
                 if (await IsLoginUsedAsync(context, login, userId))
-                    throw new ChatServiceException($"A login: {login} is already used.");
+                    throw new ChatLogicException($"A login: {login} is already used.");
 
                 user.Login = login.Trim();
                 _logger.LogInformation($"{nameof(UpdateUserAsync)} updated login: {user.Login} for user with id: {user.Id}.");
             }
             
-            if (!string.IsNullOrWhiteSpace(secretKey))
+            if (!string.IsNullOrWhiteSpace(secretKey) && user.SecretKey != secretKey)
             {
                 user.SecretKey = secretKey;
                 _logger.LogInformation($"{nameof(UpdateUserAsync)} updated secret key: {user.SecretKey} for user with id: {user.Id}.");
