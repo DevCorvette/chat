@@ -37,7 +37,10 @@ namespace Corvette.Chat.WebService
             var connection = Configuration.GetConnectionString("DefaultConnection");
             
             // common
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                options.Filters.Add(typeof(ModelFilter));
+            });
             services.Configure<AppSettings>(Configuration);
             
             // logging
