@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Xsl;
 using Corvette.Chat.Data;
 using Corvette.Chat.Data.Entities;
 using Corvette.Chat.Logic.Exceptions;
@@ -19,12 +20,13 @@ namespace Corvette.Chat.Logic.Impl
 
         private readonly IChatDataContextFactory _contextFactory;
 
-        public ChatService(
-            ILogger<ChatService> logger, 
-            IChatDataContextFactory contextFactory)
+        private readonly IMemberService _memberService;
+
+        public ChatService(ILogger<ChatService> logger, IChatDataContextFactory contextFactory, IMemberService memberService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
+            _memberService = memberService ?? throw new ArgumentNullException(nameof(memberService));
         }
         
         /// <inheritdoc/>
@@ -42,14 +44,23 @@ namespace Corvette.Chat.Logic.Impl
                 OwnerId = creator.Id,
                 Name = name,
                 IsPrivate = false,
+                ChatUsers = new List<MemberEntity> {new MemberEntity {UserId = creator.Id}},
             };
 
             context.Add(chat);
             await context.SaveChangesAsync();
 
             // result
-            var model = new ChatModel(chat, chat.Name, null, 0);
-
+            var model = new ChatModel
+            {
+                Id = chat.Id,
+                Created = chat.Created,
+                IsPrivate = chat.IsPrivate,
+                Name = chat.Name,
+                LastMessage = null,
+                UnreadCount = 0,
+            };
+            
             _logger.LogInformation($"{nameof(CreatePublicChatAsync)} successfully created new public chat: {model}");
             return model;
         }
@@ -74,14 +85,26 @@ namespace Corvette.Chat.Logic.Impl
             {
                 OwnerId = creator.Id,
                 IsPrivate = true,
-                ChatUsers = new List<MemberEntity> {new MemberEntity {UserId = interlocutorId}},
+                ChatUsers = new List<MemberEntity>
+                {
+                    new MemberEntity {UserId = creator.Id},
+                    new MemberEntity {UserId = interlocutorId},
+                },
             };
 
             context.Add(chat);
             await context.SaveChangesAsync();
 
             // result
-            var model = new ChatModel(chat, interlocutorName, null, 0);
+            var model = new ChatModel
+            {
+                Id = chat.Id,
+                Created = chat.Created,
+                IsPrivate = chat.IsPrivate,
+                Name = interlocutorName,
+                LastMessage = null,
+                UnreadCount = 0,
+            };
 
             _logger.LogInformation($"{nameof(CreatePrivateChatAsync)} successfully created new private chat: {model}");
             return model;
@@ -90,112 +113,66 @@ namespace Corvette.Chat.Logic.Impl
         /// <inheritdoc/>
         public async Task<IReadOnlyList<ChatModel>> GetAllChatsAsync(Guid userId)
         {
-            await using var context = _contextFactory.CreateContext();
-
             // check
             if (userId == default) throw new ArgumentOutOfRangeException(nameof(userId));
 
-            // get all user's chat
-            var allChats = await context.ChatUsers
-                .Where(x => x.UserId == userId)
-                .Select(x => x.Chat!)
-                .ToListAsync();
-            
-            // early exit
-            if (allChats.Count == 0) return new ChatModel[0];
-            
-            // find names for private chats
-            var privateChatIds = allChats
-                .Where(x => x.IsPrivate)
-                .Select(x => x.Id)
-                .ToList();
-            
-            var privateNames = await context.ChatUsers
-                .Where(x => privateChatIds.Contains(x.ChatId))
-                .Where(x => x.UserId != userId)
-                .ToDictionaryAsync(
-                    x => x.ChatId,
-                    x => x.User!.Name);
-            
-            // get last messages
-            var messagesDic = await (from cu in context.ChatUsers
-                    join m in context.Messages on cu.ChatId equals m.ChatId
-                    where cu.UserId == userId
-                    orderby m.Created descending
-                    group m by m.ChatId into gr
-                    select gr.First())
-                .Include(m => m.Author)
-                .ToDictionaryAsync(mes => mes.ChatId, mes => mes);
+            await using var context = _contextFactory.CreateContext();
 
-            // count unread
-            var countDic = await (from cu in context.ChatUsers
-                    join m in context.Messages on cu.ChatId equals m.ChatId
-                    where cu.UserId == userId
-                    where m.Created > cu.LastReadDate
-                    group m by m.ChatId into gr
-                    select gr)
-                .ToDictionaryAsync(g => g.Key, g => g.Count());
-                
-            // convert
-            var models = allChats.ConvertAll(x => new ChatModel(
-                x,
-                x.IsPrivate ? privateNames[x.Id] : x.Name!,
-                new MessageModel(messagesDic[x.Id]),
-                countDic[x.Id]));
-            
+            var models = await context.Members
+                .Where(mem => mem.UserId == userId)
+                .Select(mem => new ChatModel
+                {
+                    Id = mem.Chat!.Id,
+                    Created = mem.Chat.Created,
+                    IsPrivate = mem.Chat.IsPrivate,
+                    Name = !mem.Chat.IsPrivate ? mem.Chat.Name : mem.Chat.ChatUsers!.FirstOrDefault(x => x.UserId != userId)!.User!.Name!,
+                    LastMessage = mem.Chat!.Messages!.OrderByDescending(x => x.Created).Select(mes => new MessageModel
+                        {
+                            Created = mes.Created,
+                            Text = mes.Text,
+                            AuthorId = mes.AuthorId,
+                            AuthorName = mes.Author!.Name,
+                            ChatId = mem.ChatId,
+                        })
+                        .FirstOrDefault(),
+                    UnreadCount = mem.Chat!.Messages!.Count(x => x.Created > mem.LastReadDate)
+                })
+                .ToArrayAsync();
+
             return models;
         }
 
         /// <inheritdoc/>
         public async Task<ChatModel> GetChatAsync(UserModel user, Guid chatId)
         {
-            if (user == null) throw new ArgumentNullException(nameof(user));
-
             await using var context = _contextFactory.CreateContext();
-
-            // get chat
-            var chat = await context.Chats
-                           .Where(x => x.Id == chatId)
-                           .SingleOrDefaultAsync()
-                       ?? throw new EntityNotFoundException($"Chat with id: {chatId} was not found.");
-
-            // get name
-            var chatName = chat.Name;
-            if (chat.IsPrivate)
-            {
-                chatName = await context.ChatUsers
-                               .Where(x => x.ChatId == chatId)
-                               .Where(x => x.UserId != user.Id)
-                               .Select(x => x.User!.Name)
-                               .SingleOrDefaultAsync()
-                           ?? throw new EntityNotFoundException($"Can't find interlocutor in private chat: {chatId}");
-            }
             
-            // get last message
-            var message = await context.Messages
-                .Where(x => x.ChatId == chatId)
-                .OrderByDescending(x => x.Created)
-                .Include(x => x.Author)
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            await _memberService.ThrowIfAccessDenied(context, user.Id, chatId);
+
+            var chat = await context.Members
+                .Where(mem => mem.UserId == user.Id)
+                .Where(mem => mem.ChatId == chatId)
+                .Select(mem => new ChatModel
+                {
+                    Id = mem.Chat!.Id,
+                    Created = mem.Chat.Created,
+                    IsPrivate = mem.Chat.IsPrivate,
+                    Name = !mem.Chat.IsPrivate ? mem.Chat.Name : mem.Chat.ChatUsers!.FirstOrDefault(x => x.UserId != user.Id)!.User!.Name!,
+                    LastMessage = mem.Chat!.Messages!.OrderByDescending(x => x.Created).Select(mes => new MessageModel
+                        {
+                            Created = mes.Created,
+                            Text = mes.Text,
+                            AuthorId = mes.AuthorId,
+                            AuthorName = mes.Author!.Name,
+                            ChatId = mem.ChatId,
+                        })
+                        .FirstOrDefault(),
+                    UnreadCount = mem.Chat!.Messages!.Count(x => x.Created > mem.LastReadDate)
+                })
                 .FirstOrDefaultAsync();
 
-            // count unread
-            var count = 0;
-            if (message != null)
-            {
-                count = await (from cu in context.ChatUsers
-                        join m in context.Messages on cu.ChatId equals m.ChatId
-                        where cu.UserId == user.Id
-                        where m.Created > cu.LastReadDate
-                        select m)
-                    .CountAsync();
-            }
-            
-            // result
-            return new ChatModel(
-                chat, 
-                chatName!, 
-                message != null ? new MessageModel(message) : null,
-                count);
+            return chat;
         }
 
         /// <inheritdoc/>

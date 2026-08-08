@@ -20,7 +20,7 @@ namespace Corvette.Chat.Logic
         /// Returns list of members.
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
-        Task<IReadOnlyList<UserModel>> GetMembersAsync(UserModel user, Guid chatId);
+        Task<IReadOnlyList<UserModel>> GetMembersAsync(UserModel member, Guid chatId);
 
         /// <summary>
         /// Adds members to the public chat.
@@ -46,5 +46,11 @@ namespace Corvette.Chat.Logic
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="EntityNotFoundException"></exception>
         Task LeaveChatAsync(UserModel user, Guid chatId);
+
+        /// <summary>
+        /// Sets the last read date for a member of a chat.
+        /// </summary>
+        /// <exception cref="EntityNotFoundException"></exception>
+        Task SetLastReadDateAsync(UserModel user, Guid chatId, DateTime lastReadDate);
     }
 }

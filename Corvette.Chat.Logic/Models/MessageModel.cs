@@ -11,28 +11,32 @@ namespace Corvette.Chat.Logic.Models
         /// <summary>
         /// Date when message was created.
         /// </summary>
-        public DateTime Created { get; }
+        public DateTime Created { get; set; }
         
         /// <summary>
         /// Message text.
         /// </summary>
-        public string Text { get; }
-        
+        public string Text { get; set; } = null!;
+
         /// <summary>
         /// Id of a user who write the message.
         /// </summary>
-        public Guid AuthorId { get; }
+        public Guid AuthorId { get; set; }
         
         /// <summary>
         /// Name of user who write the message.
         /// </summary>
-        public string AuthorName { get; }
-        
+        public string AuthorName { get; set; } = null!;
+
         /// <summary>
         /// Id of a chat into which a user wrote the message.
         /// </summary>
-        public Guid ChatId { get; }
-        
+        public Guid ChatId { get; set; }
+
+        public MessageModel()
+        {
+        }
+
         /// <summary>
         /// Create a new <see cref="MessageModel"/>.
         /// Needs to include an author inside the entity.

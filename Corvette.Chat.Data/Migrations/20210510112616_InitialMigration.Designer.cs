@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Corvette.Chat.Data.Migrations
 {
     [DbContext(typeof(ChatDataContext))]
-    [Migration("20200610163523_InitialMigration")]
+    [Migration("20210510112616_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -18,56 +18,67 @@ namespace Corvette.Chat.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.2")
+                .HasAnnotation("ProductVersion", "3.1.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("Corvette.Chat.Data.Entities.ChatEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("created")
                         .HasColumnType("timestamp without time zone")
                         .HasDefaultValueSql("timezone('UTC'::text, now())");
 
                     b.Property<bool>("IsPrivate")
+                        .HasColumnName("is_private")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
+                        .HasColumnName("name")
                         .HasColumnType("character varying(200)")
                         .HasMaxLength(200);
 
                     b.Property<Guid>("OwnerId")
+                        .HasColumnName("owner_id")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Chats");
+                    b.ToTable("chats");
                 });
 
             modelBuilder.Entity("Corvette.Chat.Data.Entities.MemberEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("ChatId")
+                        .HasColumnName("chat_id")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("created")
                         .HasColumnType("timestamp without time zone")
                         .HasDefaultValueSql("timezone('UTC'::text, now())");
 
                     b.Property<DateTime>("LastReadDate")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnName("last_read_date")
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("timezone('UTC'::text, now())");
 
                     b.Property<Guid>("UserId")
+                        .HasColumnName("user_id")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -77,28 +88,33 @@ namespace Corvette.Chat.Data.Migrations
                     b.HasIndex("ChatId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("Members");
+                    b.ToTable("members");
                 });
 
             modelBuilder.Entity("Corvette.Chat.Data.Entities.MessageEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AuthorId")
+                        .HasColumnName("author_id")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("ChatId")
+                        .HasColumnName("chat_id")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("created")
                         .HasColumnType("timestamp without time zone")
                         .HasDefaultValueSql("timezone('UTC'::text, now())");
 
                     b.Property<string>("Text")
                         .IsRequired()
+                        .HasColumnName("text")
                         .HasColumnType("character varying(3000)")
                         .HasMaxLength(3000);
 
@@ -108,32 +124,37 @@ namespace Corvette.Chat.Data.Migrations
 
                     b.HasIndex("ChatId");
 
-                    b.ToTable("Messages");
+                    b.ToTable("messages");
                 });
 
             modelBuilder.Entity("Corvette.Chat.Data.Entities.UserEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("id")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
+                        .HasColumnName("created")
                         .HasColumnType("timestamp without time zone")
                         .HasDefaultValueSql("timezone('UTC'::text, now())");
 
                     b.Property<string>("Login")
                         .IsRequired()
+                        .HasColumnName("login")
                         .HasColumnType("character varying(200)")
                         .HasMaxLength(200);
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnName("name")
                         .HasColumnType("character varying(200)")
                         .HasMaxLength(200);
 
                     b.Property<string>("SecretKey")
                         .IsRequired()
+                        .HasColumnName("secret_key")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -146,7 +167,7 @@ namespace Corvette.Chat.Data.Migrations
 
                     b.HasIndex("Login", "SecretKey");
 
-                    b.ToTable("Users");
+                    b.ToTable("users");
                 });
 
             modelBuilder.Entity("Corvette.Chat.Data.Entities.ChatEntity", b =>

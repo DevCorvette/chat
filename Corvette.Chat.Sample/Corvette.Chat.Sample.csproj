@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <LangVersion>8</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Flurl" Version="3.0.1" />
+      <PackageReference Include="Flurl.Http" Version="3.0.1" />
+      <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.14" />
+      <PackageReference Include="System.Text.Encodings.Web" Version="5.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Corvette.Chat.WebService\Corvette.Chat.WebService.csproj" />
+    </ItemGroup>
+
+</Project>

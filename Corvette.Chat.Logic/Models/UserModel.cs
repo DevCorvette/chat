@@ -11,17 +11,21 @@ namespace Corvette.Chat.Logic.Models
         /// <summary>
         /// User id.
         /// </summary>
-        public Guid Id { get; }
+        public Guid Id { get; set; }
         
         /// <summary>
         /// Date when user was created.
         /// </summary>
-        public DateTime Created { get; }
-        
+        public DateTime Created { get; set; }
+
         /// <summary>
         /// User name.
         /// </summary>
-        public string Name { get; }
+        public string Name { get; set; } = null!;
+
+        public UserModel()
+        {
+        }
 
         /// <summary>
         /// Create a new <see cref="UserModel"/>

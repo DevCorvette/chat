@@ -30,7 +30,7 @@ namespace Corvette.Chat.Logic.Impl
         }
 
         /// <inheritdoc/>
-        public async Task<IReadOnlyList<MessageForRecipient>> AddMessageAsync(UserModel author, Guid chatId, string text)
+        public async Task<MessageWithRecipients> AddMessageAsync(UserModel author, Guid chatId, string text)
         {
             if (author == null) throw new ArgumentNullException(nameof(author));
             if (chatId == default) throw new ArgumentOutOfRangeException(nameof(chatId));
@@ -56,20 +56,19 @@ namespace Corvette.Chat.Logic.Impl
             _logger.LogDebug($"{nameof(AddMessageAsync)} successfully added message id: {message.Id} by authorId: {author.Id}, chatId: {chatId}");
 
             // count unread for all recipients
-            var recipients = await (from cu in context.ChatUsers
-                    join m in context.Messages on cu.ChatId equals m.ChatId
-                    where cu.ChatId == chatId
-                    where cu.UserId != author.Id
-                    where m.Created > cu.LastReadDate
-                    group cu by cu.ChatId into gr
-                    select gr)
-                .ToDictionaryAsync(g => g.Key, g => g.Count());
+            var recipients = await (from u in context.Members
+                    join m in context.Messages on u.ChatId equals m.ChatId
+                    where u.ChatId == chatId
+                    where u.UserId != author.Id
+                    where m.Created > u.LastReadDate
+                    group u by u.ChatId into gr
+                    select new MessageRecipient(gr.Key, gr.Count()))
+                .ToListAsync();
             
             _logger.LogDebug($"{nameof(AddMessageAsync)} successfully count unread messages for {recipients.Count} recipients");
-
-            return recipients
-                .Select(x => new MessageForRecipient(message, author.Name, x.Value, x.Key))
-                .ToList();
+            
+            var messageModel = new MessageModel(message, author.Name);
+            return new MessageWithRecipients(messageModel, recipients);
         }
 
         /// <inheritdoc/>
@@ -83,7 +82,7 @@ namespace Corvette.Chat.Logic.Impl
             await _memberService.ThrowIfAccessDenied(context, user.Id, chatId);
 
             // get last read date
-            var lastReadDate = await context.ChatUsers
+            var lastReadDate = await context.Members
                 .Where(x => x.UserId == user.Id)
                 .Where(x => x.ChatId == chatId)
                 .Select(x => x.LastReadDate)

@@ -28,7 +28,7 @@ namespace Corvette.Chat.Logic.Impl
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            var isUserInChat = await context.ChatUsers
+            var isUserInChat = await context.Members
                 .Where(x => x.UserId == userId)
                 .Where(x => x.ChatId == chatId)
                 .AnyAsync();
@@ -38,16 +38,16 @@ namespace Corvette.Chat.Logic.Impl
         }
 
         /// <inheritdoc/>
-        public async Task<IReadOnlyList<UserModel>> GetMembersAsync(UserModel user, Guid chatId)
+        public async Task<IReadOnlyList<UserModel>> GetMembersAsync(UserModel member, Guid chatId)
         {
             await using var context = _contextFactory.CreateContext();
             
             // checks
-            if (user == null) throw new ArgumentNullException(nameof(user));
-            await ThrowIfAccessDenied(context, user.Id, chatId);
+            if (member == null) throw new ArgumentNullException(nameof(member));
+            await ThrowIfAccessDenied(context, member.Id, chatId);
 
             // get
-            return await context.ChatUsers
+            return await context.Members
                 .Where(x => x.ChatId == chatId)
                 .Select(x => new UserModel(x.User!))
                 .ToListAsync();
@@ -81,7 +81,7 @@ namespace Corvette.Chat.Logic.Impl
                     throw new EntityNotFoundException($"User with id: {userId} was not found");
                 
                 // is already added?
-                var isAdded = await context.ChatUsers
+                var isAdded = await context.Members
                     .Where(x => x.UserId == userId)
                     .Where(x => x.ChatId == chatId)
                     .AnyAsync();
@@ -120,7 +120,7 @@ namespace Corvette.Chat.Logic.Impl
 
             foreach (var memberId in memberIds)
             {
-                var member = await context.ChatUsers
+                var member = await context.Members
                     .Where(x => x.UserId == memberId)
                     .Where(x => x.ChatId == chatId)
                     .SingleOrDefaultAsync();
@@ -128,7 +128,7 @@ namespace Corvette.Chat.Logic.Impl
                 // remove
                 if (member != null)
                 {
-                    context.ChatUsers.Remove(member);
+                    context.Members.Remove(member);
                     _logger.LogInformation($"{nameof(RemoveMembersAsync)} successfully removed user with id: {memberId} form a chat with id: {chatId}");
                 }
                 else
@@ -150,17 +150,47 @@ namespace Corvette.Chat.Logic.Impl
             _logger.LogDebug($"{nameof(LeaveChatAsync)} started by user with id: {user.Id} for chat with id: {chatId}");
 
             // check
-            var chatUser = await context.ChatUsers
+            var chatUser = await context.Members
                            .Where(x => x.UserId == user.Id)
                            .Where(x => x.ChatId == chatId)
                            .SingleOrDefaultAsync()
                        ?? throw new EntityNotFoundException($"User with id: {user.Id} was not found in a chat with id: {chatId}.");
 
             // remove
-            context.ChatUsers.Remove(chatUser);
+            context.Members.Remove(chatUser);
             await context.SaveChangesAsync();
             
             _logger.LogInformation($"{nameof(LeaveChatAsync)} successfully finished for user with id: {user.Id} and chat with id: {chatId}");
+        }
+
+        /// <inheritdoc/>
+        public async Task SetLastReadDateAsync(UserModel user, Guid chatId, DateTime lastReadDate)
+        {
+            if (user == null) throw new ArgumentNullException(nameof(user));
+
+            await using var context = _contextFactory.CreateContext();
+            _logger.LogDebug($"{nameof(SetLastReadDateAsync)} started by user with id: {user.Id} for chat with id: {chatId}, lastReadDate: {lastReadDate}");
+
+            // get member
+            var member = await context.Members
+                             .Where(x => x.UserId == user.Id)
+                             .Where(x => x.ChatId == chatId)
+                             .SingleOrDefaultAsync()
+                         ?? throw new EntityNotFoundException($"User with id: {user.Id} was not found in a chat with id: {chatId}.");
+
+            // set date
+            if (member.LastReadDate < lastReadDate)
+            {
+                member.LastReadDate = lastReadDate;
+                await context.SaveChangesAsync();
+                
+                _logger.LogInformation($"{nameof(SetLastReadDateAsync)} successfully set new last read date: {member.LastReadDate} for user with id: {user.Id} in chat with id: {chatId}");
+            }
+            else
+            {
+                _logger.LogWarning($"Can't set last read date to user with id: {user.Id} in chat with id: {chatId}, " +
+                                   $"because new date: {lastReadDate} is lower than old date: {member.LastReadDate}");
+            }
         }
     }
 }

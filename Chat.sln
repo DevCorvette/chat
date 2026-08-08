@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corvette.Chat.Tests", "Corv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corvette.Chat.WebService", "Corvette.Chat.WebService\Corvette.Chat.WebService.csproj", "{B3432292-F9AB-4DF4-BBA3-0DAFC9E3B3A5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Corvette.Chat.Sample", "Corvette.Chat.Sample\Corvette.Chat.Sample.csproj", "{102F9540-D463-487B-A852-0D8654ABC374}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{B3432292-F9AB-4DF4-BBA3-0DAFC9E3B3A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3432292-F9AB-4DF4-BBA3-0DAFC9E3B3A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B3432292-F9AB-4DF4-BBA3-0DAFC9E3B3A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{102F9540-D463-487B-A852-0D8654ABC374}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{102F9540-D463-487B-A852-0D8654ABC374}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{102F9540-D463-487B-A852-0D8654ABC374}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{102F9540-D463-487B-A852-0D8654ABC374}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

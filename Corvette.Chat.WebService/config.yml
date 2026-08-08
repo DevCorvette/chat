@@ -1,0 +1,28 @@
+# Urls to listen for web app
+Urls: http://localhost:5001
+
+# Logs configuration options
+Log:
+  LogConfigurationPath: ./NLog.config
+  LogOutputDirectory: ./log
+
+# log each web service requests
+LogRequestContent: true
+
+# List of URL from which requests are going to make.
+# Used for CORS policy
+AllowedUrls: 
+  - http://localhost:5001
+
+# Data base options
+DbOptions:
+  ConnectionString: Server=localhost;Port=5432;Database=chat;User Id=postgres;Password=qwerty
+  IsGlobalLoggingEnabled: true
+  IsSensitiveDataLoggingEnabled: true
+
+# Options for JWT generation
+AuthOptions:
+  Issuer: Corvette chat web service
+  Audience: Corvette test client
+  Key: DAB41EC6-B728-42BB-9D26-6C50FEE900D8
+  LifeDays: 30

@@ -54,8 +54,7 @@ namespace Corvette.Chat.Logic
         Task RenameChatAsync(UserModel owner, Guid chatId, string name);
 
         /// <summary>
-        /// Updates chat's owner or name.
-        /// Updates only those property that isn't null.
+        /// Updates owner of a public chat.
         /// </summary>
         /// <param name="owner">Chat's owner</param>
         /// <param name="chatId">Chat id</param>

@@ -8,9 +8,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.2" />
-      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.2" />
+      <PackageReference Include="Curiosity.DAL" Version="1.1.1" />
+      <PackageReference Include="Curiosity.DAL.EF" Version="1.1.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.14" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.14" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.14" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.14">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.11" />
     </ItemGroup>
 
     <ItemGroup>

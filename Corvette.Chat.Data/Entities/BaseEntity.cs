@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Corvette.Chat.Data.Entities
 {
@@ -12,12 +13,14 @@ namespace Corvette.Chat.Data.Entities
         /// Unique id.
         /// </summary>
         [Key]
+        [Column("id")]
         public Guid Id { get; set; }
         
         /// <summary>
         /// Date when entity was created.
         /// It's auto-generated in the database when an entity is inserted.
         /// </summary>
+        [Column("created")]
         public DateTime Created { get; set; }
     }
 }

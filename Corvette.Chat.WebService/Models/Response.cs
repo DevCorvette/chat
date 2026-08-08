@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Corvette.Chat.WebService.Models
 {
@@ -8,9 +9,9 @@ namespace Corvette.Chat.WebService.Models
     /// </summary>
     public class Response
     {
-        public bool IsSuccess { get; }
-        
-        public IReadOnlyList<ErrorModel> Errors { get; }
+        public bool IsSuccess { get; set; }
+
+        public IReadOnlyList<ErrorModel> Errors { get; set; }
 
         /// <summary>
         /// Use this constructor when an action is successfully completed.
@@ -18,7 +19,7 @@ namespace Corvette.Chat.WebService.Models
         public Response()
         {
             IsSuccess = true;
-            Errors = new ErrorModel[0];
+            Errors = Array.Empty<ErrorModel>();
         }
 
         /// <summary>
@@ -29,15 +30,20 @@ namespace Corvette.Chat.WebService.Models
             IsSuccess = false;
             Errors = errors ?? throw new ArgumentNullException(nameof(errors));
         }
+
+        public override string ToString()
+        {
+            return JsonSerializer.Serialize(this, new JsonSerializerOptions {WriteIndented = true});
+        }
     }
-    
+
     /// <summary>
     /// Web service response with body.
     /// </summary>
     public class Response<T> : Response
     {
         public T Body { get; }
-        
+
         /// <summary>
         /// Use this constructor when an action is successfully completed and you have body for response.
         /// </summary>

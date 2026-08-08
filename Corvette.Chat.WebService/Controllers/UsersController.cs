@@ -94,6 +94,7 @@ namespace Corvette.Chat.WebService.Controllers
         /// </summary>
         /// <param name="login">User name</param>
         [HttpGet("login/check")]
+        [AllowAnonymous]
         public async Task<Response<bool>> CheckLogin([Required] [MinLength(1)] string login)
         {
             var isUsed = await _userService.IsLoginUsedAsync(login);

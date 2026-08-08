@@ -7,8 +7,8 @@ namespace Corvette.Chat.Data.Entities
     /// <summary>
     /// Chat user.
     /// </summary>
-    [Table("Users")]
-    public sealed class UserEntity : BaseEntity
+    [Table("users")]
+    public class UserEntity : BaseEntity
     {
         /// <summary>
         /// User name.
@@ -17,6 +17,7 @@ namespace Corvette.Chat.Data.Entities
         /// </summary>
         [Required]
         [StringLength(200)]
+        [Column("name")]
         public string Name { get; set; } = null!;
         
         /// <summary>
@@ -26,28 +27,29 @@ namespace Corvette.Chat.Data.Entities
         /// </summary>
         [Required]
         [StringLength(200)]
+        [Column("login")]
         public string Login { get; set; } = null!;
         
         /// <summary>
         /// A secret key for authorization.
         /// </summary>
         [Required]
+        [Column("secret_key")]
         public string SecretKey { get; set; } = null!;
         
         /// <summary>
         /// Messages which the user sent to chats.
         /// </summary>
-        public ICollection<MessageEntity>? Messages { get; set; }
+        public virtual ICollection<MessageEntity>? Messages { get; set; }
         
         /// <summary>
         /// Collection from which we can get user chats.
         /// </summary>
-        public ICollection<MemberEntity>? ChatUsers { get; set; }
+        public virtual ICollection<MemberEntity>? ChatUsers { get; set; }
         
         /// <summary>
         /// User owned chats.
         /// </summary>
-        public ICollection<ChatEntity>? OwnChats { get; set; }
-        
+        public virtual ICollection<ChatEntity>? OwnChats { get; set; }
     }
 }  

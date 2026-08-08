@@ -11,47 +11,32 @@ namespace Corvette.Chat.Logic.Models
         /// <summary>
         /// Chat id.
         /// </summary>
-        public Guid Id { get; }
+        public Guid Id { get; set; }
         
         /// <summary>
         /// Date when chat was created.
         /// </summary>
-        public DateTime Created { get; }
+        public DateTime Created { get; set; }
         
         /// <summary>
         /// When it's true then the chat can contain only two users.
         /// </summary>
-        public bool IsPrivate { get; }
+        public bool IsPrivate { get; set; }
         
         /// <summary>
         /// Chat name.
         /// </summary>
-        public string? Name { get; }
+        public string? Name { get; set; }
         
         /// <summary>
         /// The last message in the chat.
         /// </summary>
-        public MessageModel? LastMessage { get; }
+        public MessageModel? LastMessage { get; set; }
         
         /// <summary>
         /// The count of unread messages for current user.
         /// </summary>
-        public int UnreadCount { get; }
-        
-        /// <summary>
-        /// Create a new <see cref="ChatModel"/>
-        /// </summary>
-        public ChatModel(ChatEntity chat, string chatName, MessageModel? lastMessage, int unreadCount)
-        {
-            if (string.IsNullOrWhiteSpace(chatName)) throw new ArgumentOutOfRangeException(nameof(chatName));
-            
-            Id = chat.Id;
-            Created = chat.Created;
-            IsPrivate = chat.IsPrivate;
-            Name = chatName;
-            LastMessage = lastMessage;
-            UnreadCount = unreadCount;
-        }
+        public int UnreadCount { get; set; }
 
         /// <inheritdoc/>
         public override string ToString()

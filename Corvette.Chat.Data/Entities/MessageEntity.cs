@@ -7,8 +7,8 @@ namespace Corvette.Chat.Data.Entities
     /// <summary>
     /// A message which a user adds to a chat.
     /// </summary>
-    [Table("Messages")]
-    public sealed class MessageEntity : BaseEntity
+    [Table("messages")]
+    public class MessageEntity : BaseEntity
     {
         /// <summary>
         /// Message text.
@@ -16,26 +16,29 @@ namespace Corvette.Chat.Data.Entities
         /// </summary>
         [Required]
         [StringLength(3000)]
+        [Column("text")]
         public string Text { get; set; } = null!;
         
         /// <summary>
         /// Id of a user who write the message.
         /// </summary>
+        [Column("author_id")]
         public Guid AuthorId { get; set; }
         
         /// <summary>
         /// An user who write the message.
         /// </summary>
-        public UserEntity? Author { get; set; }
+        public virtual UserEntity? Author { get; set; }
         
         /// <summary>
         /// Id of a chat into which a user wrote the message.
         /// </summary>
+        [Column("chat_id")]
         public Guid ChatId { get; set; }
         
         /// <summary>
         /// A chat into which a user wrote the message.
         /// </summary>
-        public ChatEntity? Chat { get; set; }
+        public virtual ChatEntity? Chat { get; set; }
     }
 }

@@ -6,34 +6,36 @@ namespace Corvette.Chat.Data.Entities
     /// <summary>
     /// Relation between chat and user.
     /// </summary>
-    [Table("Members")]
-    public sealed class MemberEntity : BaseEntity
+    [Table("members")]
+    public class MemberEntity : BaseEntity
     {
         /// <summary>
         /// User id.
         /// </summary>
+        [Column("user_id")]
         public Guid UserId { get; set; }
         
         /// <summary>
         /// Chat participant.
         /// </summary>
-        public UserEntity? User { get; set; }
+        public virtual UserEntity? User { get; set; }
         
         /// <summary>
         /// Chat id.
         /// </summary>
+        [Column("chat_id")]
         public Guid ChatId { get; set; }
         
         /// <summary>
         /// A chat.
         /// </summary>
-        public ChatEntity? Chat { get; set; }
+        public virtual ChatEntity? Chat { get; set; }
         
         /// <summary>
         /// Date when the user last see the chat.
         /// It's date of creating entity by default.
         /// </summary>
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column("last_read_date")]
         public DateTime LastReadDate { get; set; }
     }
 }

@@ -1,54 +1,44 @@
 ﻿using Corvette.Chat.Data.Entities;
+using Curiosity.DAL.EF;
 using Microsoft.EntityFrameworkCore;
 
 namespace Corvette.Chat.Data
 {
-    public class ChatDataContext : DbContext
+    public class ChatDataContext : CuriosityDataContext<ChatDataContext>
     {
-        private readonly string? _connectionString;
-
-        private readonly bool _isTest;
-
-        public ChatDataContext()
+        public ChatDataContext() : base(new DbContextOptions<ChatDataContext>())
         {
         }
 
-        public ChatDataContext(string connectionString)
+        public ChatDataContext(DbContextOptions<ChatDataContext> options) : base(options)
         {
-            _connectionString = connectionString;
         }
         
-        public ChatDataContext(DbContextOptions<ChatDataContext> options, bool isTest)
-            : base(options)
-        {
-            _isTest = isTest;
-        }
-        
+        // it using for EF migrator
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!_isTest)
+            if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseNpgsql(_connectionString ?? "Connection string is null"); // I use default string for EF migration
+                optionsBuilder.UseNpgsql("some connection string");
             }
         }
 
-
         public virtual DbSet<UserEntity> Users { get; set; } = null!;
-        
-        public virtual DbSet<ChatEntity> Chats { get; set; } = null!;
-        
-        public virtual DbSet<MessageEntity> Messages { get; set; } = null!;
-        
-        public virtual DbSet<MemberEntity> ChatUsers { get; set; } = null!;
 
-        
+        public virtual DbSet<ChatEntity> Chats { get; set; } = null!;
+
+        public virtual DbSet<MessageEntity> Messages { get; set; } = null!;
+
+        public virtual DbSet<MemberEntity> Members { get; set; } = null!;
+
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<UserEntity>(entity =>
             {
                 entity.Property(e => e.Created)
                     .HasDefaultValueSql("timezone('UTC'::text, now())"); // postgres function
-                
+
                 entity.HasIndex(x => x.Name)
                     .IsUnique();
 
@@ -62,7 +52,7 @@ namespace Corvette.Chat.Data
             {
                 entity.Property(e => e.Created)
                     .HasDefaultValueSql("timezone('UTC'::text, now())"); // postgres function
-                
+
                 entity.HasOne(x => x.Author)
                     .WithMany(x => x!.Messages)
                     .HasForeignKey(x => x.AuthorId)
@@ -73,12 +63,15 @@ namespace Corvette.Chat.Data
                     .HasForeignKey(x => x.ChatId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
-            
+
             builder.Entity<MemberEntity>(entity =>
             {
                 entity.Property(e => e.Created)
                     .HasDefaultValueSql("timezone('UTC'::text, now())"); // postgres function
-                
+
+                entity.Property(e => e.LastReadDate)
+                    .HasDefaultValueSql("timezone('UTC'::text, now())"); // postgres function
+
                 entity.HasOne(x => x.User)
                     .WithMany(x => x!.ChatUsers)
                     .HasForeignKey(x => x.UserId)
@@ -97,13 +90,12 @@ namespace Corvette.Chat.Data
             {
                 entity.Property(e => e.Created)
                     .HasDefaultValueSql("timezone('UTC'::text, now())"); // postgres function
-                
+
                 entity.HasOne(x => x.Owner)
                     .WithMany(x => x!.OwnChats)
                     .HasForeignKey(x => x.OwnerId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
-
         }
     }
 }

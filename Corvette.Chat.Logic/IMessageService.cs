@@ -13,7 +13,7 @@ namespace Corvette.Chat.Logic
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="ArgumentNullException"></exception>
-        Task<IReadOnlyList<MessageForRecipient>> AddMessageAsync(UserModel author, Guid chatId, string text);
+        Task<MessageWithRecipients> AddMessageAsync(UserModel author, Guid chatId, string text);
 
         /// <summary>
         /// Returns half read and half unread messages of the chat.
@@ -26,6 +26,7 @@ namespace Corvette.Chat.Logic
         /// <summary>
         /// Returns chat messages with skip and take params.
         /// Use this method for scroll up or down.
+        /// When isSkipTop is false then returns messages which older than skip date.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <exception cref="ArgumentNullException"></exception>

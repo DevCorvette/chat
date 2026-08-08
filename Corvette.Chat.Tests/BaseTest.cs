@@ -17,7 +17,7 @@ namespace Corvette.Chat.Tests
             builder.UseInMemoryDatabase($"{GetType().Name}_database", new InMemoryDatabaseRoot());
             _options = builder.Options;
             
-            var dataContext = new ChatDataContext(_options, true);
+            var dataContext = new ChatDataContext(_options);
             dataContext.Database.EnsureDeleted();
             dataContext.Database.EnsureCreated();
         }
@@ -27,7 +27,7 @@ namespace Corvette.Chat.Tests
         /// </summary>
         protected ChatDataContext CreateContext()
         {
-            return new ChatDataContext(_options, true);
+            return new ChatDataContext(_options);
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Corvette.Chat.Tests
             var services = new ServiceCollection();
 
             var factoryMock = new Mock<IChatDataContextFactory>();
-            factoryMock.Setup(x => x.CreateContext())
+            factoryMock.Setup(x => x.CreateContext(false))
                 .Returns(CreateContext);
 
             services

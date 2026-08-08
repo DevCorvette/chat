@@ -1,8 +1,10 @@
+using System;
 using System.Threading.Tasks;
 using Corvette.Chat.Logic.IoC;
+using Corvette.Chat.WebService.Configuration;
+using Corvette.Chat.WebService.Helpers;
 using Corvette.Chat.WebService.HostedServices;
 using Corvette.Chat.WebService.Middleware;
-using Corvette.Chat.WebService.Settings;
 using Corvette.Chat.WebService.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -10,50 +12,44 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using NLog.Extensions.Logging;
 
 namespace Corvette.Chat.WebService
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly IConfiguration _rawConfig;
+        private WebServiceConfiguration? _typedConfig;
+        private WebServiceConfiguration Configuration => _typedConfig ??= _rawConfig.Get<WebServiceConfiguration>();
+
+        public Startup(IConfiguration rawConfig)
         {
-            Configuration = configuration;
+            _rawConfig = rawConfig ?? throw new ArgumentNullException(nameof(rawConfig));
         }
 
-        public IConfiguration Configuration { get; }
-        
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+
             // settings
-            var settings = Configuration.Get<AppSettings>();
-            services.AddSingleton(settings);
-            var connection = Configuration.GetConnectionString("DefaultConnection");
+            services.AddSingleton(Configuration);
             
             // common
             services.AddMvc(options =>
             {
                 options.Filters.Add(typeof(ModelFilter));
             });
-            services.Configure<AppSettings>(Configuration);
-            
-            // logging
-            services.AddLogging(opt =>
-                {
-                    opt.ClearProviders();
-                    opt.SetMinimumLevel(LogLevel.Debug);
-                    opt.AddNLog();
-                })
-                .AddSingleton(provider => NLog.LogManager.GetLogger("application"));
             
             // chat services
-            services.AddChatServices(connection);
+            services.AddCorvetteChat(Configuration.DbOptions);
             services.AddSignalR();
-            services.AddSingleton<ChatHub>();
+            services.AddScoped<ChatHub>();
+            services.AddSingleton<AuthHelper>();
+            
+            services.AddRazorPages()
+                .AddRazorRuntimeCompilation();
             
             // add hosted services
             services.AddHostedService<DbMigrator>();
@@ -61,7 +57,7 @@ namespace Corvette.Chat.WebService
             // cors
             services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
             {
-                builder.WithOrigins(settings.AllowedUrls)
+                builder.WithOrigins(Configuration.AllowedUrls.ToArray())
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials();
@@ -80,12 +76,12 @@ namespace Corvette.Chat.WebService
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = settings.AuthSettings.Issuer,
+                    ValidIssuer = Configuration.AuthOptions.Issuer,
 
                     ValidateAudience = true,
-                    ValidAudience = settings.AuthSettings.Audience,
+                    ValidAudience = Configuration.AuthOptions.Audience,
 
-                    IssuerSigningKey = settings.AuthSettings.SymmetricSecurityKey,
+                    IssuerSigningKey = Configuration.AuthOptions.SymmetricSecurityKey,
                     ValidateIssuerSigningKey = true,
 
                     ValidateLifetime = true,
@@ -100,8 +96,7 @@ namespace Corvette.Chat.WebService
 
                         // If the request is for our hub...
                         var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken) 
-                            && (path.StartsWithSegments("/signalr")))
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("chat/hub"))
                         {
                             // Read the token out of the query string
                             context.Token = accessToken;
@@ -133,7 +128,7 @@ namespace Corvette.Chat.WebService
                 routes.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}");
-                routes.MapHub<ChatHub>("/chat/hub");
+                routes.MapHub<ChatHub>("chat/hub");
             });
         }
     }
